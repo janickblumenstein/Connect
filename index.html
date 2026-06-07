@@ -3,22 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Teens-Abschluss – Mitmach-Spiel</title>
+<title>Connect Gala – Mitmach-Spiel</title>
 <style>
 :root{
-  --gold:#d4af37;--rose:#e8a4b8;
-  --bg:#1a1520;--card:#2a2230;--card2:#352b3e;--muted:#9a8fa5;
-  --border:#3e3448;--green:#4ecf6a;--red:#e85a5a;--ink:#f5eef8;--orange:#e8a555;
+  /* Hollywood-Gala: schwarz, Gold & roter Samt-Teppich */
+  --gold:#d4af37;--gold2:#f7e08a;--rose:#e8a4b8;
+  --bg:#0c0608;--card:#1c1216;--card2:#271a1f;--muted:#b79aa0;
+  --border:#4a2f2f;--green:#4ecf6a;--red:#e85a5a;--ink:#f7efe8;--orange:#e8a555;
+  --carpet:#9b1320;--carpet2:#6a0c16;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,sans-serif;min-height:100vh;overscroll-behavior:none}
+html,body{margin:0;padding:0;color:var(--ink);font-family:-apple-system,system-ui,sans-serif;min-height:100vh;overscroll-behavior:none;
+  background:radial-gradient(ellipse at 50% -10%,#3a1014 0%,#15090c 45%,var(--bg) 100%) fixed}
 body{padding-bottom:20px}
 .wrap{max-width:520px;margin:auto;padding:12px}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);border-radius:14px;margin-bottom:12px;position:sticky;top:10px;z-index:50;border:1px solid var(--border)}
-.topbar h1{margin:0;font-size:1rem;color:var(--gold);font-weight:600;letter-spacing:1px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:linear-gradient(180deg,#241318,#160b0e);border-radius:14px;margin-bottom:12px;position:sticky;top:10px;z-index:50;border:1px solid var(--gold);box-shadow:0 2px 14px rgba(0,0,0,.5)}
+.topbar h1{margin:0;font-size:1rem;color:var(--gold);font-weight:700;letter-spacing:1.5px}
 .badge{font-size:.75rem;opacity:.85;font-weight:600}
 .badge.host{color:var(--gold);font-weight:bold;opacity:1}
-.card{background:var(--card);padding:18px;border-radius:16px;margin-bottom:12px;box-shadow:0 2px 14px rgba(0,0,0,.3);border:1px solid var(--border)}
+.card{background:linear-gradient(180deg,var(--card),#160b0e);padding:18px;border-radius:16px;margin-bottom:12px;box-shadow:0 4px 18px rgba(0,0,0,.45);border:1px solid var(--border);position:relative}
+.card::before{content:"";position:absolute;inset:0;border-radius:16px;padding:1px;background:linear-gradient(135deg,rgba(212,175,55,.5),transparent 40%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 h2{margin:0 0 14px;font-size:1.15rem;color:var(--gold)}
 h3{margin:16px 0 10px;font-size:1rem;color:var(--rose)}
 .sub{opacity:.65;font-size:.85rem;margin:6px 0}
@@ -26,7 +30,7 @@ hr{border:none;border-top:1px dashed var(--border);margin:16px 0}
 input,select,textarea,button{width:100%;padding:14px;margin:6px 0;border-radius:12px;border:none;font-size:16px;font-family:inherit}
 select{background:#fff;color:#000;height:50px}
 input,textarea{background:var(--card2);color:var(--ink);border:1px solid var(--border)}
-button{background:var(--gold);color:#000;font-weight:bold;cursor:pointer;transition:transform .1s}
+button{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#2a1a00;font-weight:bold;cursor:pointer;transition:transform .1s;box-shadow:0 2px 8px rgba(212,175,55,.25)}
 button:active{transform:scale(.97)}
 button:disabled{opacity:.35;cursor:not-allowed}
 .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--ink)}
@@ -37,38 +41,84 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .row{display:flex;gap:8px}.row>*{flex:1}
 .hidden{display:none!important}
 
-/* === LOGIN === */
+/* === LOGIN – HOLLYWOOD-GALA / ROTER TEPPICH === */
 #login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at top,#3d2133,var(--bg) 60%);
   padding:20px;text-align:center;position:relative;overflow:hidden}
-#login::before{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
-  background:radial-gradient(circle,rgba(232,164,184,.06) 0%,transparent 40%);
-  animation:rotate 40s linear infinite;pointer-events:none}
-@keyframes rotate{to{transform:rotate(360deg)}}
-.landing-logo{font-size:2.1rem;font-weight:300;letter-spacing:3px;
-  background:linear-gradient(120deg,var(--gold),var(--rose),var(--gold));
+/* Scheinwerfer-Lichtkegel von oben */
+#login::before{content:"";position:absolute;top:-30%;left:50%;width:140%;height:120%;transform:translateX(-50%);
+  background:
+    conic-gradient(from 200deg at 50% 0%,transparent 0deg,rgba(247,224,138,.10) 16deg,transparent 32deg,transparent 328deg,rgba(247,224,138,.10) 344deg,transparent 360deg);
+  animation:spotsweep 7s ease-in-out infinite alternate;pointer-events:none;z-index:0}
+@keyframes spotsweep{from{opacity:.5}to{opacity:1}}
+/* Roter Teppich, der nach hinten in die Tiefe läuft */
+.carpet{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:0;pointer-events:none;
+  width:min(560px,92vw);height:78vh;
+  background:linear-gradient(180deg,#c0182a 0%,var(--carpet) 30%,var(--carpet2) 100%);
+  clip-path:polygon(34% 0,66% 0,100% 100%,0 100%);
+  box-shadow:0 0 80px rgba(155,19,32,.6)}
+.carpet::after{content:"";position:absolute;inset:0;clip-path:inherit;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.07) 0 22px,transparent 22px 44px)}
+/* Goldene Absperrbänder links & rechts entlang des Teppichs */
+.rope{position:absolute;bottom:0;top:0;width:42px;z-index:1;pointer-events:none}
+.rope.left{left:calc(50% - min(280px,46vw))}
+.rope.right{right:calc(50% - min(280px,46vw))}
+.rope .post{position:absolute;width:10px;height:120px;border-radius:6px;
+  background:linear-gradient(90deg,#8a6d12,var(--gold2),#8a6d12);left:50%;transform:translateX(-50%)}
+.rope .post::before{content:"";position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--gold2),#9a7a12)}
+.rope .post.p1{bottom:6vh}.rope .post.p2{bottom:30vh}.rope .post.p3{bottom:54vh}
+.rope .swag{position:absolute;left:50%;transform:translateX(-50%);width:70px;height:60px;
+  border:5px solid var(--gold);border-top:none;border-radius:0 0 90px 90px;opacity:.9;
+  box-shadow:0 3px 6px rgba(0,0,0,.4)}
+.rope .swag.s1{bottom:calc(6vh + 70px)}.rope .swag.s2{bottom:calc(30vh + 70px)}
+
+.landing-logo{font-size:2.3rem;font-weight:800;letter-spacing:4px;
+  background:linear-gradient(120deg,var(--gold),var(--gold2),var(--gold));
   background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:shine 4s ease-in-out infinite;cursor:pointer;user-select:none;margin-bottom:6px}
+  animation:shine 4s ease-in-out infinite;cursor:pointer;user-select:none;margin-bottom:6px;
+  text-shadow:0 2px 20px rgba(212,175,55,.3);position:relative;z-index:2}
 @keyframes shine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.landing-sub{opacity:.65;font-size:.9rem;letter-spacing:3px;margin-bottom:30px;text-transform:uppercase}
-.landing-card{background:rgba(42,34,48,.88);backdrop-filter:blur(10px);
-  padding:26px;border-radius:22px;border:1px solid rgba(212,175,55,.18);
-  max-width:400px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.5);position:relative;z-index:1}
-.landing-emoji{font-size:3rem;margin-bottom:12px;animation:float 3s ease-in-out infinite}
+.landing-sub{opacity:.8;font-size:.85rem;letter-spacing:3px;margin-bottom:26px;text-transform:uppercase;color:var(--rose);position:relative;z-index:2}
+.landing-card{background:rgba(20,11,14,.9);backdrop-filter:blur(12px);
+  padding:26px;border-radius:22px;border:1px solid rgba(212,175,55,.45);
+  max-width:400px;width:100%;box-shadow:0 10px 50px rgba(0,0,0,.7),0 0 40px rgba(155,19,32,.25);position:relative;z-index:2}
+.vip-stamp{display:inline-block;font-size:.7rem;letter-spacing:3px;font-weight:800;color:#2a1a00;
+  background:linear-gradient(180deg,var(--gold2),var(--gold));padding:5px 14px;border-radius:20px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.landing-emoji{font-size:3rem;margin-bottom:6px;animation:float 3s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .team-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
-.team-btn{padding:18px 10px;border-radius:14px;border:2px solid var(--border);
-  background:var(--card2);color:var(--ink);cursor:pointer;font-size:.95rem;font-weight:bold;transition:all .15s;margin:0}
-.team-btn.sel{border-color:var(--tcol);background:color-mix(in srgb,var(--tcol) 18%,transparent);color:var(--tcol)}
-.team-btn .ic{display:block;font-size:1.8rem;margin-bottom:4px}
-.host-hint{position:absolute;bottom:16px;font-size:.7rem;opacity:.3}
+.team-btn{padding:14px 10px;border-radius:14px;border:2px solid var(--border);
+  background:var(--card2);color:var(--ink);cursor:pointer;font-size:.95rem;font-weight:bold;transition:all .15s;margin:0;
+  display:flex;flex-direction:column;align-items:center;gap:6px}
+.team-btn.sel{border-color:var(--tcol);background:color-mix(in srgb,var(--tcol) 22%,transparent);color:var(--tcol);box-shadow:0 0 16px color-mix(in srgb,var(--tcol) 40%,transparent)}
+.team-btn .ic{font-size:1.8rem;line-height:1}
+.team-btn .tn{font-size:.95rem}
+.team-auto{grid-column:1 / -1;border-style:dashed;border-color:var(--gold);flex-direction:row;justify-content:center;gap:8px}
+.team-auto .tn{font-size:.9rem}
+/* Teen-Avatar (Foto rund, sonst Emoji) */
+.tav{width:46px;height:46px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  background-size:cover;background-position:center;background-color:var(--card2);
+  border:2px solid color-mix(in srgb,var(--tcol,#d4af37) 70%,#000);font-size:1.6rem;flex:0 0 auto}
+.tav-ph{font-size:1.6rem}
+.host-hint{position:absolute;bottom:16px;font-size:.7rem;opacity:.3;z-index:2}
 
 /* === TEEN ANSWER BUTTONS === */
 .teen-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .teen-btn{border:2px solid var(--tcol);background:color-mix(in srgb,var(--tcol) 16%,transparent);
-  color:var(--ink);border-radius:14px;padding:20px 10px;font-size:1rem;font-weight:bold;cursor:pointer;margin:0}
+  color:var(--ink);border-radius:14px;padding:16px 10px;font-size:1rem;font-weight:bold;cursor:pointer;margin:0;
+  display:flex;flex-direction:column;align-items:center;gap:8px}
+.teen-btn .tav{width:64px;height:64px;font-size:2.1rem}
 .teen-btn .te{display:block;font-size:1.8rem;margin-bottom:4px}
 .teen-btn:active{transform:scale(.96)}
+
+/* === TRIVIA OPTION BUTTONS (Bibel-Figuren) === */
+.opt-grid{display:grid;grid-template-columns:1fr;gap:9px}
+.opt-btn{border:2px solid var(--tcol);background:color-mix(in srgb,var(--tcol) 14%,transparent);
+  color:var(--ink);border-radius:12px;padding:15px 14px;font-size:1.05rem;font-weight:bold;cursor:pointer;margin:0;
+  display:flex;align-items:center;gap:12px;text-align:left}
+.opt-btn:active{transform:scale(.98)}
+.opt-letter{flex:0 0 auto;width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--tcol);color:#1a1014;font-weight:900}
 
 /* === TEAM SCORE BOARD (N Teams) === */
 .team-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
@@ -145,31 +195,44 @@ body.beamer-mode .beamer-view .team-score-big .tcard .value{font-size:5rem;font-
 body.beamer-mode .beamer-view .team-score-big .tcard .sublabel{font-size:1rem;opacity:.5}
 body.beamer-mode .beamer-view .tap-live{font-size:5.5rem;font-weight:900}
 body.beamer-mode .beamer-view .teen-row-big{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:30px}
-body.beamer-mode .beamer-view .teen-row-big .tchip{padding:16px 26px;border-radius:16px;font-size:1.8rem;border:3px solid var(--tcol);background:color-mix(in srgb,var(--tcol) 14%,transparent)}
+body.beamer-mode .beamer-view .teen-row-big .tchip{padding:14px 24px;border-radius:16px;font-size:1.8rem;border:3px solid var(--tcol);background:color-mix(in srgb,var(--tcol) 14%,transparent);display:inline-flex;align-items:center;gap:14px}
+body.beamer-mode .beamer-view .teen-row-big .tchip .tav{width:70px;height:70px;font-size:2.4rem}
 </style>
 </head>
 <body>
 
 <!-- ===== LOGIN ===== -->
 <div id="login">
-  <div class="landing-logo" id="landingLogo">✦ Teens-Abschluss ✦</div>
-  <div class="landing-sub" id="coupleName">Mitmach-Spiel</div>
+  <!-- Roter Teppich + goldene Absperrbänder (Hollywood-Gala) -->
+  <div class="carpet"></div>
+  <div class="rope left">
+    <div class="post p1"></div><div class="post p2"></div><div class="post p3"></div>
+    <div class="swag s1"></div><div class="swag s2"></div>
+  </div>
+  <div class="rope right">
+    <div class="post p1"></div><div class="post p2"></div><div class="post p3"></div>
+    <div class="swag s1"></div><div class="swag s2"></div>
+  </div>
+
+  <div class="landing-logo" id="landingLogo">✦ CONNECT GALA ✦</div>
+  <div class="landing-sub" id="coupleName">Roter Teppich</div>
   <div class="landing-card">
-    <div class="landing-emoji">🎉</div>
-    <h2 style="margin:6px 0">Herzlich willkommen!</h2>
-    <div class="sub">Name ist freiwillig. Wähle ein Teen, das du anfeuern (oder kennenlernen) willst – oder bleib offen.</div>
-    <input id="nameInp" placeholder="Dein Name (optional)" maxlength="24" autocomplete="off">
+    <div class="vip-stamp">★ V I P ★</div>
+    <div class="landing-emoji">🎬</div>
+    <h2 style="margin:6px 0">Willkommen auf dem roten Teppich!</h2>
+    <div class="sub">Heute sind die Teens die Stars. Name ist freiwillig. Wähle den Teen, den du anfeuerst – oder lass dich überraschen.</div>
+    <input id="nameInp" placeholder="Dein Star-Name (optional)" maxlength="24" autocomplete="off">
     <div class="team-pick" id="teamPick"><!-- wird aus den Teens generiert --></div>
-    <button id="btnJoin">Mitmachen</button>
+    <button id="btnJoin">🌟 Roten Teppich betreten</button>
     <button id="btnHost" class="btn-ghost hidden" style="margin-top:8px">👑 Als Host starten (kein Team)</button>
   </div>
-  <div class="host-hint">PoC · 3× Logo tippen für Host-Modus</div>
+  <div class="host-hint">3× Logo tippen für Host-Modus</div>
 </div>
 
 <!-- ===== APP (player view) ===== -->
 <div id="app" class="wrap hidden">
   <div class="topbar">
-    <h1>✦ Teens-Abschluss</h1>
+    <h1>✦ CONNECT GALA</h1>
     <div class="badge" id="userBadge"></div>
   </div>
 

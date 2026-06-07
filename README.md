@@ -1,62 +1,102 @@
-# ✦ Teens-Abschluss – Mitmach-Spiel (PoC)
+# 🎬 Connect Gala – Mitmach-Spiel
 
-Web-App, um die Gemeinde & Gäste beim Teens-Abschluss-Gottesdienst einzubinden:
-Auf dem Beamer erscheint ein Foto oder ein Satz, alle raten am Handy
-**„Welcher der Teens ist das?"**. Fan-Teams sammeln Rundensiege, einzelne
-Tipper sammeln Punkte.
+Web-App für den Teens-Abschluss im Stil einer **Hollywood-Gala**: roter Teppich,
+goldene Absperrbänder, die Teens sind die **VIPs**, die Gäste sind das Publikum
+(„Reporter"). Auf dem Beamer erscheint ein Foto oder eine Frage, alle ~160 Gäste
+tippen am Handy mit.
 
-> Diese App ist aus dem bewährten Hochzeits-Rate-Spiel entstanden. Statt
-> *„Wer von **beiden**?"* (Braut/Bräutigam) geht es jetzt um *„Welcher der
-> **Teens**?"* – die binäre Logik wurde auf **beliebig viele Teens + ein
-> neutrales Team** verallgemeinert.
+> Aus dem bewährten Hochzeits-Rate-Spiel entstanden. Aus *„Wer von beiden?"* wurde
+> *„Welcher der Teens?"* – plus Bibel-Quiz und Schwarm-Fragen.
 
 ## 🎯 Konzept
 
-- **Jeder Besucher** scannt den QR-Code, gibt **optional** einen Namen ein und
-  wählt **ein Teen als Fan-Team** – oder bleibt bewusst **„Noch offen"**
-  (kein Zwang, kein Popularitäts-Contest).
-- **Spiel:** Host zeigt Babyfotos / Kindheitsfotos oder blendet einen Satz/Fakt
-  ein. Alle tippen, welcher Teen gemeint ist.
-- **Wertung – bewusst relativ, nie absolut:**
-  - **Einzelpunkte:** +1 pro richtige Antwort → persönliche Rangliste.
-  - **Rundensieg fürs Fan-Team:** das Team mit der höchsten **Trefferquote in %**
-    gewinnt die Runde. Dadurch ist die **Teamgrösse egal** – ein Teen mit
-    wenigen Fans kann genauso gewinnen wie eins mit vielen.
-- **Tap-Duell** als Auflockerung: schnellstes Fan-Team (Taps pro Person) gewinnt.
+- **Login = roter Teppich:** Gast gibt **optional** einen Namen ein und wählt einen
+  Teen als Fan-Team – oder **„🎲 Noch offen"**. Wer „Noch offen" wählt, wird
+  **automatisch dem Team mit den aktuell wenigsten Fans** zugeteilt → die Gruppen
+  bleiben gleich gross (wichtig für die faire, relative Wertung).
+- **Drei Fragetypen** (Reihenfolge fest, nicht randomisiert):
+  1. **📖 Bibel-Figuren raten (9):** Foto einer nachgestellten Szene (Beamer **und**
+     Handy), Gäste wählen den richtigen Namen aus 5–6 Optionen.
+  2. **⭐ Über die Teens (5):** Fragen mit *echter* Antwort (z.B. „Wer hat 10 Jahre
+     Klavierunterricht?") → richtiger Teen.
+  3. **🔮 Schwarm-Fragen (5):** Keine objektive Antwort – die **Mehrheit** entscheidet
+     („errate, was der Saal denkt", z.B. „Wer kocht in 5 Jahren am wenigsten?").
+
+## 🏆 Wertung – zwei Ranglisten
+
+- **Team (relativ, nie absolut):** Pro Frage gewinnt das Fan-Team mit der höchsten
+  **Trefferquote in %** die Runde (+1). Teamgrösse egal → über alle ~20 Fragen
+  ergeben sich ~20 Team-Punkte. Bei Schwarm-Fragen = höchste Übereinstimmung mit der
+  Mehrheit.
+- **Einzel (Kahoot-Stil mit Tempo):** Richtige Antwort gibt **500–1000 Punkte** je
+  nach Reaktionszeit – **wer schneller richtig tippt, bekommt mehr**. Falsch = 0.
+  Die Zeit wird **pro Gerät** ab Erscheinen der Frage gemessen (fair trotz Latenz).
+- **Tap-Duell** als Zwischenspiel: schnellstes Fan-Team gewinnt 1 Runde; die
+  schnellsten Finger bekommen 1000/600/300 Einzelpunkte.
 
 ## 📁 Projekt-Struktur
 
 ```
-├── index.html       ← Layout & Styles
+├── index.html       ← Layout & Gala-Styles (roter Teppich, Absperrbänder)
 └── js/
-    ├── content.js   ← HIER: Teens, Fragen, Fotos & Sets anpassen
-    ├── core.js      ← Firebase, Login, Team-Modell (Teens + neutral)
-    ├── games.js     ← Quiz-Runner mit Timer & relativer Team-Wertung
+    ├── content.js   ← HIER: Teens, Fotos, Fragen & Sets anpassen
+    ├── core.js      ← Firebase, Login, Auto-Team-Zuteilung, Team-Modell
+    ├── games.js     ← Quiz-Runner: guess / trivia / poll / estimate + Wertung
     ├── tapduel.js   ← Tap-Duell aller Fan-Teams
     └── beamer.js    ← Beamer-Großansicht
 ```
 
-## 🚀 Setup in 3 Schritten
+## 📸 Fotos ablegen (Firebase Storage)
 
-### 1. Firebase
-Die `firebaseConfig` in `js/core.js` (Zeilen 9–14) eintragen.
-Die App nutzt den Raum **`TEENS`** (Konstante `ROOM` in `core.js`), kollidiert
-also nicht mit anderen Apps in derselben Datenbank.
-Realtime-Database-Rules (für ein Event):
+Du brauchst Bild-**URLs** für (a) die 5 Teens und (b) die 9 Bibel-Szenen.
+Empfohlen über **Firebase Storage** (gleiches Projekt wie die Datenbank):
+
+1. **Firebase-Konsole** → dein Projekt → **Build → Storage** → *Get started*
+   (Test-Modus reicht für ein Event).
+2. Lege zwei Ordner an, z.B.:
+   - `connect/teens/`  → Teen-Porträts: `t1.jpg`, `t2.jpg`, … `t5.jpg`
+   - `connect/bibel/`  → die Szenen-Fotos: `bibel1.jpg` … `bibel9.jpg`
+3. Bild anklicken → rechts **„Download-URL"** kopieren (lange URL mit `?alt=media&token=…`).
+4. URL in `js/content.js` eintragen:
+   - Teen-Foto → Feld **`photo:`** beim jeweiligen Teen.
+   - Bibel-Foto → Feld **`photoUrl:`** bei der jeweiligen Trivia-Frage.
+
+**Storage-Rules** (öffentlich lesbar für das Event – Schreiben gesperrt):
+```json
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /connect/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;   // Uploads nur du in der Konsole
+    }
+  }
+}
+```
+
+> Tipp: Bilder vorher auf ~800×800 px / unter ~300 KB verkleinern – bei 160
+> Geräten gleichzeitig lädt das viel angenehmer. Leeres `photo`/`photoUrl` zeigt
+> einfach ein Emoji bzw. 📷 als Platzhalter.
+>
+> Alternativ gehen auch beliebige andere öffentliche Bild-URLs (z.B. imgur).
+
+## 🚀 Setup
+
+### 1. Firebase Realtime Database
+`firebaseConfig` in `js/core.js` eintragen. Raum = **`TEENS`** (Konstante `ROOM`).
+Database-Rules (für ein Event):
 ```json
 { "rules": { ".read": "now < 1830000000000", ".write": "now < 1830000000000" } }
 ```
 
-### 2. Teens & Fragen anpassen → `js/content.js`
-- **`teens`**: id, Name, Emoji, Farbe (`color`) und optional `photo` je Teen.
-  Die Reihenfolge bestimmt die Reihenfolge der Antwort-Buttons.
-- **`questions.guess`**: Fragen mit `answer: "<teen-id>"`.
-  - *mit* `photoUrl` → Bild-Quiz („Welcher Teen ist auf dem Foto?")
-  - *ohne* `photoUrl` → Satz/Fakt-Quiz („Welcher Teen hat das gesagt?")
-- **`questions.estimate`** (optional): Schätzfragen mit Zahl-`answer`.
-- **`sets`**: welche Quiz-Sets der Host starten kann.
-
-> Fotos auf https://imgur.com hochladen → Rechtsklick → „Bildadresse kopieren".
+### 2. Teens & Fragen → `js/content.js`
+- **`teens`**: id, Name, Emoji, `color`, `photo`. Reihenfolge = Button-Reihenfolge.
+- **`questions.trivia`**: Bibel-Fragen mit `photoUrl`, `options` (5–6) und `answer`
+  (der korrekte Options-Text). 👉 Text & Antworten anpassen.
+- **`questions.guess`**: Teen-Fragen mit `answer: "<teen-id>"`.
+- **`questions.poll`**: Schwarm-Fragen (nur `q`, keine Antwort).
+- **`questions.estimate`**: Schätzfragen mit Zahl-`answer`.
+- **`sets`**: was der Host starten kann. `🎬 Gala-Show` spielt alle 19 nacheinander.
 
 ### 3. Hosten
 **Netlify Drop** (https://netlify.com/drop): Ordner in den Browser ziehen → fertig.
@@ -64,20 +104,27 @@ Alternativ Vercel oder GitHub Pages.
 
 ## 🎮 Ablauf am Abend
 
-**Host:** 3× auf den Titel oben tippen → Host-Button erscheint → ohne Team starten →
-Host-Tab → Set wählen → starten → Frage auflösen → nächste Frage.
+**Host:** 3× auf den Titel/Logo tippen → Host-Button → ohne Team starten →
+Host-Tab → Set wählen (z.B. „🎬 Gala-Show") → Frage auflösen → nächste Frage.
 
-**Beamer-Laptop:** gleiche URL mit `?beamer=1` öffnen (Vollbild, QR-Code unten rechts).
+**Beamer-Laptop:** gleiche URL mit `?beamer=1` (Vollbild, QR-Code unten rechts).
 
-**Gäste:** QR scannen → (Name optional) → Teen wählen oder „Noch offen" → mitmachen.
+**Gäste:** QR scannen → (Name optional) → Teen wählen oder „🎲 Noch offen" → mitmachen.
 
-## ⚠️ Known Limits (PoC)
-- Keine Foto-Uploads in der App (imgur-/Bild-URLs nötig).
-- Ein Raum (`TEENS`) – für ein Event reicht das.
-- Kein echtes Auth.
+## ⚠️ Hinweise (bei ~160 Gleichzeitig)
+
+- Fotos klein halten (s.o.) – das ist der grösste Bandbreiten-Faktor.
+- Antworten werden in **einem** Write pro Gast gespeichert (Wert + Reaktionszeit),
+  um die Last tief zu halten.
+- Die Auto-Zuteilung von „Noch offen" balanciert gut, ist aber kein
+  Transaktions-Lock – bei Logins exakt im selben Moment kann eine Gruppe minim
+  grösser werden (durch die relative %-Wertung unkritisch).
 - `color-mix()` im CSS → moderne Browser nötig (aktuelle Handys: kein Problem).
 
 ## 💡 Ideen für später
-- Eigener Fragetyp „Zitat-Zuordnung" mit Audio.
-- „Steckbrief" je Teen, der nach jeder Runde ein Stück mehr enthüllt wird.
-- Abschluss-Slide pro Teen mit Foto & Segenswunsch.
+
+- **Foto-Reveal:** Bibel-Szene erst verpixelt, schärft sich über den Timer.
+- **Steckbrief je Teen**, der nach jeder Runde ein Stück mehr enthüllt wird.
+- **Live-Interview-Slide** pro Teen (VIP-Karte mit Foto + ein Satz).
+- **Sound:** Tusch beim Auflösen, Applaus für den Rundensieger.
+- **Abschluss-Slide** pro Teen mit Foto & Segenswunsch.

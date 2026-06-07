@@ -19,19 +19,23 @@ const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const ROOM = "TEENS";
 
-// ── Team-Modell: die Teens + ein neutrales Team ──────────────
-const NEUTRAL_ID = "neutral";
-function neutralTeam(){
-  return { id: NEUTRAL_ID, name: (window.TeensContent && window.TeensContent.neutralLabel) || "Noch offen",
-           emoji: "🤷", color: "#9a8fa5", neutral: true };
-}
-// Alle Teams (Teens + neutral) – einzige Quelle der Wahrheit fürs UI.
+// ── Team-Modell: ausschliesslich die Teens ───────────────────
+// "Noch offen" ist KEIN eigenes Team mehr, sondern eine Login-Wahl
+// (Sentinel AUTO_ID): wer das wählt, wird automatisch dem Team mit den
+// aktuell wenigsten Fans zugeteilt → balancierte Gruppen für faire,
+// relative Wertung. Ranglisten/Beamer zeigen nur die 5 Teens.
+const AUTO_ID = "_auto";
+// Alle wertbaren Teams = die Teens. Einzige Quelle der Wahrheit fürs UI.
 function allTeams(){
-  const teens = (window.TeensContent && window.TeensContent.teens) || [];
-  return [...teens, neutralTeam()];
+  return [...((window.TeensContent && window.TeensContent.teens) || [])];
 }
 function teensOnly(){ return (window.TeensContent && window.TeensContent.teens) || []; }
 function teamById(id){ return allTeams().find(t => t.id === id) || null; }
+// Avatar eines Teens: Foto wenn vorhanden, sonst Emoji-Platzhalter.
+function avatarHtml(t){
+  if(t && t.photo) return `<span class="tav" style="background-image:url('${t.photo}')"></span>`;
+  return `<span class="tav tav-ph">${(t && t.emoji) || "👤"}</span>`;
+}
 function teamName(id){ const t = teamById(id); return t ? t.name : (id || "—"); }
 function teamColor(id){ const t = teamById(id); return t ? t.color : "#9a8fa5"; }
 function teamEmoji(id){ const t = teamById(id); return t ? t.emoji : "👤"; }
@@ -45,7 +49,8 @@ const App = window.App = {
   $: id => document.getElementById(id),
   toast, awardScore, switchTab, clearTimers, shuffle, isBeamer: false,
   // Team-Helper für alle Module:
-  allTeams, teensOnly, teamById, teamName, teamColor, teamEmoji, NEUTRAL_ID
+  allTeams, teensOnly, teamById, teamName, teamColor, teamEmoji, avatarHtml, AUTO_ID,
+  questionReceivedAt: 0
 };
 
 function clearTimers(){ App.timers.forEach(t=>{clearInterval(t);clearTimeout(t)}); App.timers=[]; }
@@ -101,14 +106,19 @@ function initLogin() {
     if(hostClicks >= 3) App.$("btnHost").classList.remove("hidden");
   };
 
-  // Team-Buttons dynamisch aus den Teens (+ neutral) bauen
+  // Team-Buttons dynamisch aus den Teens + "Noch offen"-Auto-Button bauen
   let selectedTeam = null;
   const pick = App.$("teamPick");
   if(pick){
-    pick.innerHTML = allTeams().map(t => `
+    const teenBtns = teensOnly().map(t => `
       <button class="team-btn" data-team="${t.id}" style="--tcol:${t.color}">
-        <span class="ic">${t.emoji}</span>${t.name}
+        ${avatarHtml(t)}<span class="tn">${t.name}</span>
       </button>`).join("");
+    const autoBtn = `
+      <button class="team-btn team-auto" data-team="${AUTO_ID}" style="--tcol:var(--gold)">
+        <span class="ic">🎲</span><span class="tn">${c.neutralLabel || "Noch offen"}</span>
+      </button>`;
+    pick.innerHTML = teenBtns + autoBtn;
 
     pick.querySelectorAll(".team-btn").forEach(btn => {
       btn.onclick = () => {
@@ -158,10 +168,24 @@ async function attemptAutoLogin() {
 async function start(takeHost, team) {
   const inputName = App.$("nameInp").value.trim();
   // Name ist OPTIONAL → leer = automatischer Gast-Name
-  if (!takeHost && !team) return alert("Bitte ein Teen oder „" + neutralTeam().name + "“ wählen!");
+  if (!takeHost && !team) return alert("Bitte ein Teen oder „" + (window.TeensContent?.neutralLabel || "Noch offen") + "“ wählen!");
 
   const playersSnap = await get(ref(db, `rooms/${App.room}/players`));
   const players = playersSnap.val() || {};
+
+  // "Noch offen" → automatisch dem Team mit den AKTUELL wenigsten Fans
+  // zuteilen. Bei Gleichstand zufällig unter den kleinsten wählen, damit
+  // sich bei vielen gleichzeitigen Logins keine Schlange auf EIN Team bildet.
+  if (team === AUTO_ID) {
+    const counts = {};
+    teensOnly().forEach(t => counts[t.id] = 0);
+    Object.values(players).forEach(p => { if (p.team && counts[p.team] !== undefined) counts[p.team]++; });
+    const min = Math.min(...Object.values(counts));
+    const smallest = Object.keys(counts).filter(id => counts[id] === min);
+    team = smallest[Math.floor(Math.random() * smallest.length)];
+    const t = teamById(team);
+    if (t) toast(`Du bist im Team ${t.emoji} ${t.name}!`);
+  }
 
   let finalName = inputName;
   if (!finalName) {
@@ -285,7 +309,7 @@ function switchTab(name){
   if(t) t.classList.remove("hidden");
 }
 
-// ── Team-Board: eine Karte pro Team (Teens + neutral) ───────
+// ── Team-Board: eine Karte pro Teen-Team ────────────────────
 function renderTeamBoard(){
   const board = App.$("teamBoard"); if(!board) return;
   const players = App.players || {};

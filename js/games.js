@@ -1,7 +1,24 @@
 // === games.js – Quiz-Runner: "Welcher Teen ist das?" + Schätzfragen ===
 // Team-Wertung ist RELATIV (Trefferquote in %), nie absolut → kein
-// Popularitäts-Contest, Teamgrösse egal. Auch das neutrale Team spielt mit.
+// Popularitäts-Contest, Teamgrösse egal.
 const A = window.App, { db, ref, set, onValue, update, get, remove, $, toast, shuffle } = A;
+
+// ── Individuelle Punkte (Kahoot-Stil, mit Zeitfaktor) ──────────
+// Richtige Antwort: BASE..(BASE+BONUS) Punkte je nach Tempo.
+// Wer SOFORT nach Erscheinen der Frage richtig tippt ≈ MAX,
+// wer kurz vor Ablauf richtig tippt ≈ BASE. Falsch = 0.
+const PTS_BASE  = 500;   // Sockel für jede richtige Antwort
+const PTS_BONUS = 500;   // zusätzlicher Tempo-Bonus (max)
+function speedPoints(elapsedMs, totalMs){
+  if(elapsedMs == null || !(totalMs > 0)) return PTS_BASE; // keine Zeit gemessen → nur Sockel
+  const f = Math.max(0, Math.min(1, 1 - elapsedMs / totalMs));
+  return Math.round(PTS_BASE + PTS_BONUS * f);
+}
+// Antwort kann altes Format (Wert) oder neues Format ({v,t}) sein.
+function ansVal(raw){ return (raw && typeof raw === "object") ? raw.v : raw; }
+function ansTime(raw){ return (raw && typeof raw === "object") ? raw.t : null; }
+// Text für ein HTML-Attribut absichern (Trivia-Optionen können Sonderzeichen haben).
+function escAttr(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 const prevReady = A.listeners.onReady;
 A.listeners.onReady = ()=>{
@@ -18,11 +35,15 @@ A.listeners.onReady = ()=>{
     A.state.game = newGame;
 
     const isNewQuestionOrPhase = newGame && (!prevGame || prevGame.q !== newGame.q || prevGame.phase !== newGame.phase);
-    const myPrevAns = (prevGame && prevGame.answers) ? prevGame.answers[A.user] : undefined;
-    const myNewAns = (newGame && newGame.answers) ? newGame.answers[A.user] : undefined;
+    // Wert-Vergleich (Antworten sind jetzt {v,t}-Objekte → Referenzvergleich
+    // würde bei JEDER fremden Antwort einen Full-Render auslösen).
+    const myPrevAns = (prevGame && prevGame.answers) ? ansVal(prevGame.answers[A.user]) : undefined;
+    const myNewAns = (newGame && newGame.answers) ? ansVal(newGame.answers[A.user]) : undefined;
     const iJustAnswered = myPrevAns !== myNewAns;
 
     if (isNewQuestionOrPhase) {
+      // Zeitmessung pro Gerät: ab JETZT (Frage erschienen) zählt das Tempo.
+      if (newGame && newGame.phase === "answer") A.questionReceivedAt = Date.now();
       if (!A.isHost && !A.isBeamer) A.switchTab("Game");
       renderGame();
     } else if (iJustAnswered) {
@@ -175,6 +196,7 @@ async function loadQuestion(idx){
   if(qData.answer !== undefined) game.answer = qData.answer;
   if(qData.photoUrl) game.photoUrl = qData.photoUrl;
   if(qData.unit !== undefined) game.unit = qData.unit;
+  if(qData.options) game.options = qData.options;   // Trivia: Antwort-Optionen
 
   await set(ref(db, `rooms/${A.room}/game`), game);
   await update(ref(db, `rooms/${A.room}/quiz`), { current: idx });
@@ -282,7 +304,7 @@ function renderGame(){
     return;
   }
 
-  const myAns = (g.answers || {})[A.user];
+  const myAns = ansVal((g.answers || {})[A.user]);
   let html = "";
 
   if(q){
@@ -290,7 +312,7 @@ function renderGame(){
   }
   html += `<div class="q-big">${g.q}</div>`;
 
-  if(g.type === "guess" && g.photoUrl){
+  if(g.photoUrl){
     html += `<div class="photo-box"><img src="${g.photoUrl}" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;ph&quot;>📷</div>'"></div>`;
   }
 
@@ -325,19 +347,30 @@ function renderGame(){
 }
 
 function labelForAnswer(g, ans){
-  if(g.type === "guess") return A.teamName(ans);
+  if(g.type === "guess" || g.type === "poll") return A.teamName(ans);
   if(g.type === "estimate") return g.unit ? `${ans} ${g.unit}` : String(ans);
   return String(ans);
 }
 
 function buildAnswerInput(g){
-  if(g.type === "guess"){
-    // Ein Button pro Teen (das neutrale Team ist keine Antwortmöglichkeit)
+  // Teen wählen (mit Foto) – für "guess" (echte Antwort) und "poll" (Schwarm)
+  if(g.type === "guess" || g.type === "poll"){
     const btns = A.teensOnly().map(t => `
       <button class="teen-btn" data-send="${t.id}" style="--tcol:${t.color}">
-        <span class="te">${t.emoji}</span>${t.name}
+        ${A.avatarHtml(t)}<span class="tn">${t.name}</span>
       </button>`).join("");
     return `<div class="teen-grid" style="margin-top:16px">${btns}</div>`;
+  }
+  // Bibel-Trivia: eine der vorgegebenen Optionen wählen
+  if(g.type === "trivia"){
+    const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
+    const btns = (g.options || []).map((opt, i) => {
+      const col = cols[i % cols.length];
+      return `<button class="opt-btn" data-send="${escAttr(opt)}" style="--tcol:${col}">
+        <span class="opt-letter">${String.fromCharCode(65 + i)}</span>${opt}
+      </button>`;
+    }).join("");
+    return `<div class="opt-grid" style="margin-top:16px">${btns}</div>`;
   }
   if(g.type === "estimate"){
     return `<input id="estInp" type="number" step="any" placeholder="Deine Schätzung${g.unit?' ('+g.unit+')':''}" autofocus>
@@ -346,17 +379,22 @@ function buildAnswerInput(g){
   return "";
 }
 
+// Antwort + gemessene Reaktionszeit (ms seit Erscheinen der Frage) in EINEM
+// Write speichern → hält die Last bei ~160 Gästen tief (1 Write pro Antwort).
+async function sendAnswer(value){
+  const elapsed = Math.max(0, Date.now() - (A.questionReceivedAt || Date.now()));
+  await set(ref(db, `rooms/${A.room}/game/answers/${A.user}`), { v: value, t: elapsed });
+}
+
 function wireAnswerInputs(g){
   document.querySelectorAll("[data-send]").forEach(btn=>{
-    btn.onclick = async()=>{
-      await set(ref(db, `rooms/${A.room}/game/answers/${A.user}`), btn.dataset.send);
-    };
+    btn.onclick = ()=> sendAnswer(btn.dataset.send);
   });
   const es = $("estSend");
-  if(es) es.onclick = async()=>{
+  if(es) es.onclick = ()=>{
     const v = parseFloat($("estInp").value);
     if(isNaN(v)) return toast("Bitte Zahl eingeben!");
-    await set(ref(db, `rooms/${A.room}/game/answers/${A.user}`), v);
+    sendAnswer(v);
   };
   const inp = $("estInp");
   if(inp) inp.onkeydown = e=>{ if(e.key === "Enter") es.click(); };
@@ -364,36 +402,53 @@ function wireAnswerInputs(g){
 
 // ═══════════════════════════════════════════════════════════
 // AUFLÖSUNG – Batch-Score-Update für viele Gäste
-// teamStats pro Team (Teens + neutral); Rundensieg = höchste QUOTE.
+//
+// ZWEI Wertungen (wie gewünscht):
+//  • TEAM   : RELATIV zur Teamgrösse → Trefferquote in %. Das Team mit der
+//             höchsten Quote gewinnt die Runde (+1). So gibt es über alle
+//             Fragen ~20 Team-Punkte und die Teamgrösse spielt keine Rolle.
+//  • EINZEL : Kahoot-Stil mit Zeitfaktor → schneller richtig = mehr Punkte.
+//
+// Frage-Typen:
+//  • guess  : feste richtige Antwort (Teen-id)
+//  • trivia : feste richtige Antwort (Options-Text, z.B. Bibel-Figur)
+//  • poll   : KEINE feste Antwort → die MEHRHEIT bestimmt die "richtige"
+//             Antwort ("errate, was der Saal denkt").
+//  • estimate: Zahl, am nächsten dran punktet.
 // ═══════════════════════════════════════════════════════════
 async function revealCurrent() {
   if (!A.isHost) return;
   const g = (await get(ref(db, `rooms/${A.room}/game`))).val();
   if (!g || g.phase !== "answer") return;
 
-  const answers = g.answers || {};
+  const rawAnswers = g.answers || {};
   const players = A.players || {};
   const teamIds = A.allTeams().map(t => t.id);
+  const totalMs = (g.endsAt && g.startedAt) ? (g.endsAt - g.startedAt) : null;
 
   // teamStats: für jedes Team correct/total/rate
   const teamStats = {};
   teamIds.forEach(id => teamStats[id] = { correct: 0, total: 0, rate: 0 });
-  // breakdown: wie oft wurde welcher Teen getippt (Antwort-Verteilung)
-  const breakdown = {};
-  const ranking = [];
+  const breakdown = {};   // Antwort-Verteilung (key = getippter Wert)
+  const ranking = [];     // nur für estimate
 
   const scoreDeltas = {};
   const addScore = (uid, pts) => { scoreDeltas[uid] = (scoreDeltas[uid] || 0) + pts; };
 
-  for (const [uid, ans] of Object.entries(answers)) {
+  // Antworten in einheitliches { v, t } normalisieren
+  const answers = {};
+  for (const [uid, raw] of Object.entries(rawAnswers)) {
+    answers[uid] = { v: ansVal(raw), t: ansTime(raw) };
+  }
+
+  for (const [uid, a] of Object.entries(answers)) {
     const p = players[uid];
     if (!p) continue;
-    breakdown[ans] = (breakdown[ans] || 0) + 1;
+    breakdown[a.v] = (breakdown[a.v] || 0) + 1;
     if (p.team && teamStats[p.team]) teamStats[p.team].total++;
-
     if (g.type === "estimate") {
-      const diff = Math.abs(ans - g.answer);
-      ranking.push({ uid, p: p.name || uid.split('_')[0], team: p.team, v: ans, diff });
+      const diff = Math.abs(a.v - g.answer);
+      ranking.push({ uid, p: p.name || uid.split('_')[0], team: p.team, v: a.v, diff });
     }
   }
 
@@ -419,23 +474,27 @@ async function revealCurrent() {
     if (ranking.length > 0) {
       const bestDiff = ranking[0].diff;
       const topWinners = ranking.filter(r => r.diff === bestDiff);
-      // Team mit den meisten Top-Tippern gewinnt die Runde (Gleichstand → keiner)
       const byTeam = {};
       topWinners.forEach(r => { if(r.team) byTeam[r.team] = (byTeam[r.team]||0)+1; });
       winner = pickMax(byTeam);
     }
   } else {
-    // ── RATEN ("Welcher Teen?"): richtig wenn ans === g.answer ──
-    for (const [uid, ans] of Object.entries(answers)) {
-      if (ans === g.answer) {
-        const p = players[uid];
-        if (p) {
+    // ── RATEN/TRIVIA/SCHWARM ─────────────────────────────────
+    // Bei "poll" gibt es keine feste Antwort → Mehrheit = richtig.
+    if (g.type === "poll") {
+      finalCorrectAnswer = pickMaxStrict(breakdown); // meistgetippter Wert
+    }
+    if (finalCorrectAnswer != null) {
+      for (const [uid, a] of Object.entries(answers)) {
+        if (a.v === finalCorrectAnswer) {
+          const p = players[uid];
+          if (!p) continue;
           if (p.team && teamStats[p.team]) teamStats[p.team].correct++;
-          addScore(uid, 1);
+          addScore(uid, speedPoints(a.t, totalMs));  // EINZEL: Tempo zählt
         }
       }
     }
-    // Rundensieg = höchste TREFFERQUOTE (relativ, Teamgrösse egal)
+    // TEAM: Rundensieg = höchste TREFFERQUOTE (relativ, Teamgrösse egal)
     const rates = {};
     teamIds.forEach(id => {
       const ts = teamStats[id];
@@ -487,8 +546,13 @@ function buildRevealView(g){
   const r = g.result || {};
   let html = "";
 
+  const rawMy = (g.answers || {})[A.user];
+  const myAns = ansVal(rawMy);
+  const totalMs = (g.endsAt && g.startedAt) ? (g.endsAt - g.startedAt) : null;
+  const myPts = (myAns !== undefined && g.answer != null && myAns === g.answer)
+    ? speedPoints(ansTime(rawMy), totalMs) : 0;
+
   if (!A.isHost && !A.isBeamer) {
-    const myAns = (g.answers || {})[A.user];
     if (g.type === "estimate") {
        const myEntry = (r.ranking || []).find(e => e.uid === A.user);
        if (myEntry && myEntry.awardedPts) {
@@ -496,9 +560,17 @@ function buildRevealView(g){
        } else if (myAns !== undefined) {
          html += `<div class="flash" style="text-align:center">Guter Versuch, aber nicht in den Punkterängen.</div>`;
        }
+    } else if (g.type === "poll") {
+       if (myAns !== undefined && myAns === g.answer) {
+         html += `<div class="flash gold" style="text-align:center;font-size:1.1rem">🎯 Du tippst mit der Mehrheit! <b>+${myPts} Punkte</b></div>`;
+       } else if (myAns !== undefined) {
+         html += `<div class="flash" style="text-align:center;font-size:1.05rem">Die Mehrheit sah es anders 😄</div>`;
+       } else {
+         html += `<div class="flash" style="text-align:center;opacity:.7">Du hast nicht abgestimmt.</div>`;
+       }
     } else {
-       if (myAns === g.answer) {
-         html += `<div class="flash gold" style="text-align:center;font-size:1.1rem">🎉 Richtig! <b>+1 Punkt</b> für dich!</div>`;
+       if (myAns !== undefined && myAns === g.answer) {
+         html += `<div class="flash gold" style="text-align:center;font-size:1.1rem">🎉 Richtig! <b>+${myPts} Punkte</b> für dich!</div>`;
        } else if (myAns !== undefined) {
          html += `<div class="flash warn" style="text-align:center;font-size:1.1rem">❌ Leider falsch!</div>`;
        } else {
@@ -507,10 +579,30 @@ function buildRevealView(g){
     }
   }
 
-  if(g.type === "guess"){
+  if(g.type === "guess" || g.type === "poll"){
     const correct = A.teamById(g.answer) || {};
-    html += `<div class="flash gold"><b>✓ Richtig:</b> ${correct.emoji||''} ${correct.name||g.answer}</div>`;
+    const lbl = g.type === "poll" ? "🔮 Die Mehrheit sagt:" : "✓ Richtig:";
+    if(g.answer != null){
+      html += `<div class="flash gold"><b>${lbl}</b> ${correct.emoji||''} ${correct.name||g.answer}</div>`;
+    } else {
+      html += `<div class="flash warn">Kein eindeutiges Mehrheitsvotum (Gleichstand)</div>`;
+    }
     html += buildDistribution(r.breakdown || {}, g.answer);
+    if(r.teamStats){
+      html += `<h3>${g.type === "poll" ? "Übereinstimmung mit der Mehrheit:" : "Trefferquote pro Fan-Team:"}</h3>`;
+      A.allTeams().forEach(t=>{
+        const ts = r.teamStats[t.id]; if(!ts || ts.total === 0) return;
+        const win = r.roundWinner === t.id;
+        html += `<div class="score-row ${win?'me':''}">
+          <span><span class="tm" style="background:${t.color}">${t.emoji}</span>${t.name}</span>
+          <strong>${ts.correct}/${ts.total} (${(ts.rate*100).toFixed(0)}%)</strong>
+        </div>`;
+      });
+    }
+  }
+  else if(g.type === "trivia"){
+    html += `<div class="flash gold"><b>✓ Richtig:</b> ${g.answer}</div>`;
+    html += buildOptionDistribution(r.breakdown || {}, g.answer, g.options || []);
     if(r.teamStats){
       html += `<h3>Trefferquote pro Fan-Team:</h3>`;
       A.allTeams().forEach(t=>{
@@ -566,6 +658,26 @@ function buildDistribution(breakdown, correctId){
   const legend = teens.filter(t=>breakdown[t.id]).map(t=>
     `<span style="white-space:nowrap"><span class="dot" style="background:${t.color}"></span>${t.name} (${breakdown[t.id]||0})</span>`
   ).join(" ");
+  return `<div class="result-bar">${segs}</div>
+    <div class="legend">${legend || '<span class="sub">Keine Antworten</span>'}</div>`;
+}
+
+// Antwort-Verteilung über Text-Optionen (Bibel-Trivia)
+function buildOptionDistribution(breakdown, correctVal, options){
+  const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
+  const total = options.reduce((s,o)=>s + (breakdown[o]||0), 0) || 1;
+  const segs = options.map((o,i)=>{
+    const c = breakdown[o] || 0;
+    const pct = c / total * 100;
+    if(pct === 0) return "";
+    const col = cols[i % cols.length];
+    const ring = o === correctVal ? "box-shadow:inset 0 0 0 3px var(--gold)" : "";
+    return `<div class="rb" style="width:${pct}%;background:${col};color:#111;${ring}" title="${o}">${c>0?c:''}</div>`;
+  }).join("");
+  const legend = options.filter(o=>breakdown[o]).map((o)=>{
+    const i = options.indexOf(o); const col = cols[i % cols.length];
+    return `<span style="white-space:nowrap"><span class="dot" style="background:${col}"></span>${o} (${breakdown[o]||0})</span>`;
+  }).join(" ");
   return `<div class="result-bar">${segs}</div>
     <div class="legend">${legend || '<span class="sub">Keine Antworten</span>'}</div>`;
 }
