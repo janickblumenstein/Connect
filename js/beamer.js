@@ -113,7 +113,7 @@ function renderActiveGame(view, g, q){
   }
   html += `<div class="question">${g.q}</div>`;
 
-  if(g.type === "guess" && g.photoUrl){
+  if(g.photoUrl){
     html += `<div class="photo-box" style="margin:20px auto;max-width:500px;aspect-ratio:1"><img src="${g.photoUrl}" alt=""></div>`;
   }
 
@@ -126,10 +126,15 @@ function renderActiveGame(view, g, q){
     }
     html += `<div class="big-counter">${cnt} / ${total}</div>`;
     html += `<div class="sub-big">haben geantwortet</div>`;
-    if(g.type === "guess"){
-      // Die wählbaren Teens als Hinweis gross zeigen
+    if(g.type === "guess" || g.type === "poll"){
+      // Die wählbaren Teens als Hinweis gross zeigen (mit Foto)
       html += `<div class="teen-row-big">` + A.teensOnly().map(t=>
-        `<div class="tchip" style="--tcol:${t.color}">${t.emoji} ${t.name}</div>`
+        `<div class="tchip" style="--tcol:${t.color}">${A.avatarHtml(t)}<span>${t.name}</span></div>`
+      ).join("") + `</div>`;
+    } else if(g.type === "trivia"){
+      const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
+      html += `<div class="teen-row-big">` + (g.options || []).map((o,i)=>
+        `<div class="tchip" style="--tcol:${cols[i % cols.length]}"><span>${String.fromCharCode(65+i)}. ${o}</span></div>`
       ).join("") + `</div>`;
     } else if(g.type === "estimate" && g.unit){
       html += `<div class="sub-big" style="margin-top:20px;opacity:.5">Tipp in ${g.unit}</div>`;
@@ -147,10 +152,27 @@ function renderRevealBeamer(g){
   const r = g.result || {};
   let html = "";
 
-  if(g.type === "guess"){
+  if(g.type === "guess" || g.type === "poll"){
     const correct = A.teamById(g.answer) || {};
-    html += `<div class="question" style="color:var(--green);font-size:3.5rem">✓ ${correct.emoji||''} ${correct.name||g.answer}</div>`;
+    if(g.answer != null){
+      const pre = g.type === "poll" ? "🔮 Mehrheit:" : "✓";
+      html += `<div class="question" style="color:var(--green);font-size:3.5rem">${pre} ${correct.emoji||''} ${correct.name||g.answer}</div>`;
+    } else {
+      html += `<div class="question" style="color:var(--orange);font-size:3rem">Gleichstand – kein Mehrheitsvotum</div>`;
+    }
     html += bigDistribution(r.breakdown || {}, g.answer);
+    if(r.teamStats){
+      const parts = A.allTeams().map(t=>{
+        const ts = r.teamStats[t.id];
+        if(!ts || ts.total === 0) return "";
+        return `<span style="color:${t.color}">${t.emoji} ${(ts.rate*100).toFixed(0)}%</span>`;
+      }).filter(Boolean).join(" · ");
+      html += `<div class="sub-big" style="margin-top:20px">${parts}</div>`;
+    }
+  }
+  else if(g.type === "trivia"){
+    html += `<div class="question" style="color:var(--green);font-size:3.5rem">✓ ${g.answer}</div>`;
+    html += bigOptionDistribution(r.breakdown || {}, g.answer, g.options || []);
     if(r.teamStats){
       const parts = A.allTeams().map(t=>{
         const ts = r.teamStats[t.id];
@@ -202,6 +224,26 @@ function bigDistribution(breakdown, correctId){
   const legend = teens.filter(t=>breakdown[t.id]).map(t=>
     `<span style="white-space:nowrap;margin:0 10px"><span class="dot" style="background:${t.color}"></span>${t.name} (${breakdown[t.id]||0})</span>`
   ).join("");
+  return `<div style="display:flex;height:80px;max-width:1000px;margin:30px auto;border-radius:14px;overflow:hidden">${segs}</div>
+    <div style="font-size:1.3rem;opacity:.85;display:flex;flex-wrap:wrap;justify-content:center;gap:6px">${legend}</div>`;
+}
+
+// Gestapelter Balken über Text-Optionen (Bibel-Trivia, Beamer-Grösse)
+function bigOptionDistribution(breakdown, correctVal, options){
+  const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
+  const total = options.reduce((s,o)=>s+(breakdown[o]||0),0) || 1;
+  const segs = options.map((o,i)=>{
+    const c = breakdown[o]||0;
+    const pct = c/total*100;
+    if(pct===0) return "";
+    const col = cols[i % cols.length];
+    const ring = o === correctVal ? "box-shadow:inset 0 0 0 6px var(--gold)" : "";
+    return `<div style="width:${pct}%;background:${col};color:#111;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;${ring}">${c>0?c:''}</div>`;
+  }).join("");
+  const legend = options.filter(o=>breakdown[o]).map((o)=>{
+    const i = options.indexOf(o); const col = cols[i % cols.length];
+    return `<span style="white-space:nowrap;margin:0 10px"><span class="dot" style="background:${col}"></span>${o} (${breakdown[o]||0})</span>`;
+  }).join("");
   return `<div style="display:flex;height:80px;max-width:1000px;margin:30px auto;border-radius:14px;overflow:hidden">${segs}</div>
     <div style="font-size:1.3rem;opacity:.85;display:flex;flex-wrap:wrap;justify-content:center;gap:6px">${legend}</div>`;
 }
@@ -267,7 +309,8 @@ function renderTapDuel(view, d){
 }
 
 function typeLabel(t){
-  return { guess:"Welcher Teen ist das?", estimate:"Schätzfrage" }[t] || "";
+  return { guess:"Welcher Teen ist das?", trivia:"Bibel-Figuren raten",
+           poll:"Schwarm-Frage – was denkt der Saal?", estimate:"Schätzfrage" }[t] || "";
 }
 
 console.log("✅ beamer.js loaded (Teens)");

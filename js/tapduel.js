@@ -124,7 +124,7 @@ async function finishTapDuel() {
   // Punkte für die schnellsten Finger
   tappers.sort((a, b) => b.count - a.count);
   const topTappers = [];
-  const points = [10, 5, 3];
+  const points = [1000, 600, 300];   // an die Quiz-Skala (500–1000) angeglichen
   let currentRank = 0;
   let lastCount = tappers.length > 0 ? tappers[0].count : -1;
   const scoreDeltas = {};
@@ -255,9 +255,9 @@ function render(){
       html += `<h3 style="text-align:center;margin-top:24px;color:var(--gold)">🔥 Die schnellsten Finger</h3>`;
       d.topTappers.forEach((t) => {
         let medal = "🔹";
-        if (t.pts === 10) medal = "🥇";
-        if (t.pts === 5) medal = "🥈";
-        if (t.pts === 3) medal = "🥉";
+        if (t.pts === 1000) medal = "🥇";
+        if (t.pts === 600) medal = "🥈";
+        if (t.pts === 300) medal = "🥉";
         const isMe = t.uid === A.user ? 'style="border:1px solid var(--gold);background:rgba(212,175,55,.15)"' : '';
         html += `<div class="score-row" ${isMe}>
           <span>${medal} ${t.name} <span class="sub">(${t.count} Taps)</span></span>
