@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Teens-Abschluss – Mitmach-Spiel</title>
+<style>
+:root{
+  --gold:#d4af37;--rose:#e8a4b8;
+  --bg:#1a1520;--card:#2a2230;--card2:#352b3e;--muted:#9a8fa5;
+  --border:#3e3448;--green:#4ecf6a;--red:#e85a5a;--ink:#f5eef8;--orange:#e8a555;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,sans-serif;min-height:100vh;overscroll-behavior:none}
+body{padding-bottom:20px}
+.wrap{max-width:520px;margin:auto;padding:12px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);border-radius:14px;margin-bottom:12px;position:sticky;top:10px;z-index:50;border:1px solid var(--border)}
+.topbar h1{margin:0;font-size:1rem;color:var(--gold);font-weight:600;letter-spacing:1px}
+.badge{font-size:.75rem;opacity:.85;font-weight:600}
+.badge.host{color:var(--gold);font-weight:bold;opacity:1}
+.card{background:var(--card);padding:18px;border-radius:16px;margin-bottom:12px;box-shadow:0 2px 14px rgba(0,0,0,.3);border:1px solid var(--border)}
+h2{margin:0 0 14px;font-size:1.15rem;color:var(--gold)}
+h3{margin:16px 0 10px;font-size:1rem;color:var(--rose)}
+.sub{opacity:.65;font-size:.85rem;margin:6px 0}
+hr{border:none;border-top:1px dashed var(--border);margin:16px 0}
+input,select,textarea,button{width:100%;padding:14px;margin:6px 0;border-radius:12px;border:none;font-size:16px;font-family:inherit}
+select{background:#fff;color:#000;height:50px}
+input,textarea{background:var(--card2);color:var(--ink);border:1px solid var(--border)}
+button{background:var(--gold);color:#000;font-weight:bold;cursor:pointer;transition:transform .1s}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.35;cursor:not-allowed}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--ink)}
+.btn-green{background:var(--green);color:#0a1a0c}
+.btn-red{background:var(--red);color:#fff}
+.btn-orange{background:var(--orange);color:#2a1a10}
+.btn-sm{padding:9px 13px;font-size:.85rem;width:auto;margin:3px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.hidden{display:none!important}
+
+/* === LOGIN === */
+#login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at top,#3d2133,var(--bg) 60%);
+  padding:20px;text-align:center;position:relative;overflow:hidden}
+#login::before{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(232,164,184,.06) 0%,transparent 40%);
+  animation:rotate 40s linear infinite;pointer-events:none}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.landing-logo{font-size:2.1rem;font-weight:300;letter-spacing:3px;
+  background:linear-gradient(120deg,var(--gold),var(--rose),var(--gold));
+  background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shine 4s ease-in-out infinite;cursor:pointer;user-select:none;margin-bottom:6px}
+@keyframes shine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.landing-sub{opacity:.65;font-size:.9rem;letter-spacing:3px;margin-bottom:30px;text-transform:uppercase}
+.landing-card{background:rgba(42,34,48,.88);backdrop-filter:blur(10px);
+  padding:26px;border-radius:22px;border:1px solid rgba(212,175,55,.18);
+  max-width:400px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.5);position:relative;z-index:1}
+.landing-emoji{font-size:3rem;margin-bottom:12px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.team-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.team-btn{padding:18px 10px;border-radius:14px;border:2px solid var(--border);
+  background:var(--card2);color:var(--ink);cursor:pointer;font-size:.95rem;font-weight:bold;transition:all .15s;margin:0}
+.team-btn.sel{border-color:var(--tcol);background:color-mix(in srgb,var(--tcol) 18%,transparent);color:var(--tcol)}
+.team-btn .ic{display:block;font-size:1.8rem;margin-bottom:4px}
+.host-hint{position:absolute;bottom:16px;font-size:.7rem;opacity:.3}
+
+/* === TEEN ANSWER BUTTONS === */
+.teen-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.teen-btn{border:2px solid var(--tcol);background:color-mix(in srgb,var(--tcol) 16%,transparent);
+  color:var(--ink);border-radius:14px;padding:20px 10px;font-size:1rem;font-weight:bold;cursor:pointer;margin:0}
+.teen-btn .te{display:block;font-size:1.8rem;margin-bottom:4px}
+.teen-btn:active{transform:scale(.96)}
+
+/* === TEAM SCORE BOARD (N Teams) === */
+.team-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+.team-card{padding:14px 10px;border-radius:14px;text-align:center;border:2px solid var(--tcol,var(--border));
+  background:color-mix(in srgb,var(--tcol,#888) 12%,transparent)}
+.team-card .nm{font-size:.8rem;opacity:.85;margin-bottom:4px}
+.team-card .pts{font-size:2.2rem;font-weight:900;letter-spacing:1px}
+.team-card .pts-sub{font-size:.65rem;opacity:.6;margin-top:2px}
+.team-card .mem{font-size:.72rem;opacity:.6;margin-top:4px}
+.team-winning{box-shadow:0 0 20px rgba(212,175,55,.45);transform:scale(1.03)}
+
+/* === SCORE ROWS === */
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-radius:10px;margin:4px 0;background:var(--card2);font-size:.9rem}
+.score-row.me{background:rgba(212,175,55,.15);border:1px solid var(--gold)}
+.score-row .tm{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:8px;margin-right:6px;color:#111}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.legend{font-size:.78rem;opacity:.8;display:flex;flex-wrap:wrap;gap:6px 12px;margin:6px 2px}
+
+/* === GAME DISPLAY === */
+.q-big{font-size:1.3rem;color:var(--gold);text-align:center;margin:14px 0;font-weight:600;line-height:1.35}
+.q-num{text-align:center;font-size:.8rem;opacity:.6;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.photo-box{width:100%;max-width:400px;margin:10px auto;border-radius:14px;overflow:hidden;background:var(--card2);aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+.photo-box img{width:100%;height:100%;object-fit:cover}
+.photo-box .ph{font-size:3rem;opacity:.3}
+.flash{padding:12px;border-radius:10px;background:rgba(78,207,106,.15);border-left:3px solid var(--green);margin:10px 0;font-size:.9rem}
+.flash.warn{background:rgba(232,90,90,.15);border-left-color:var(--red)}
+.flash.gold{background:rgba(212,175,55,.15);border-left-color:var(--gold)}
+.flash.rose{background:rgba(232,164,184,.15);border-left-color:var(--rose)}
+
+/* === TIMER === */
+.timer-bar{height:8px;background:var(--card2);border-radius:4px;overflow:hidden;margin:10px 0}
+.timer-bar .fill{height:100%;background:var(--gold);transition:width 1s linear, background .3s}
+.timer-bar .fill.warn{background:var(--orange)}
+.timer-bar .fill.crit{background:var(--red)}
+.timer-num{font-size:1.4rem;color:var(--gold);text-align:center;font-weight:bold;margin:4px 0}
+
+/* === RESULT BARS (N segmente) === */
+.result-bar{height:30px;border-radius:6px;overflow:hidden;display:flex;margin:10px 0;background:var(--card2)}
+.result-bar .rb{display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.85rem;transition:width .6s ease-out;min-width:0}
+
+/* === TAP === */
+.tap-btn{width:100%;border-radius:20px;margin:15px 0;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:transform .05s}
+.tap-btn:active{transform:scale(.95)}
+.tap-count{font-size:5rem;font-weight:900;text-align:center;margin:10px 0}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:12px 20px;border-radius:25px;font-weight:bold;z-index:200;animation:toastIn .3s;max-width:90%;text-align:center}
+@keyframes toastIn{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+
+/* === TAB BAR === */
+.tabbar{display:flex;justify-content:space-around;background:var(--card);border-radius:14px;padding:6px;margin-bottom:10px;border:1px solid var(--border)}
+.tab{flex:1;background:none;border:none;color:var(--muted);padding:10px 4px;font-size:.75rem;text-align:center;cursor:pointer;border-radius:10px;margin:0}
+.tab.active{color:var(--gold);background:rgba(212,175,55,.12)}
+.tab .ic{display:block;font-size:1.3rem;margin-bottom:2px}
+
+/* === BEAMER MODE === */
+body.beamer-mode{background:#0a0810;padding:0}
+body.beamer-mode .wrap{max-width:1400px}
+body.beamer-mode .beamer-view{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:60px 40px;text-align:center}
+body.beamer-mode .beamer-view h1{font-size:4rem;color:var(--gold);margin:0 0 20px;font-weight:300;letter-spacing:2px}
+body.beamer-mode .beamer-view .question{font-size:3rem;color:var(--ink);margin:30px auto;max-width:85%;line-height:1.3}
+body.beamer-mode .beamer-view .photo-box{max-width:500px;aspect-ratio:1}
+body.beamer-mode .beamer-view .photo-box img{object-fit:cover}
+body.beamer-mode .beamer-view .sub-big{font-size:1.5rem;opacity:.7;margin:10px 0}
+body.beamer-mode .beamer-view .big-counter{font-size:5rem;font-weight:900;color:var(--gold)}
+body.beamer-mode .beamer-view .big-timer{font-size:7rem;font-weight:900;color:var(--gold);line-height:1}
+body.beamer-mode .beamer-view .big-timer.warn{color:var(--orange)}
+body.beamer-mode .beamer-view .big-timer.crit{color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+body.beamer-mode .beamer-view .qprog{font-size:1.2rem;opacity:.5;letter-spacing:3px;text-transform:uppercase;margin-bottom:20px}
+body.beamer-mode .beamer-view .team-score-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;margin-top:40px;max-width:1200px;width:100%;align-self:center}
+body.beamer-mode .beamer-view .team-score-big .tcard{padding:28px;border-radius:20px;border:3px solid var(--tcol,var(--border));background:color-mix(in srgb,var(--tcol,#888) 10%,transparent)}
+body.beamer-mode .beamer-view .team-score-big .tcard .label{font-size:1.5rem;letter-spacing:1px;opacity:.85}
+body.beamer-mode .beamer-view .team-score-big .tcard .value{font-size:5rem;font-weight:900;margin:10px 0}
+body.beamer-mode .beamer-view .team-score-big .tcard .sublabel{font-size:1rem;opacity:.5}
+body.beamer-mode .beamer-view .tap-live{font-size:5.5rem;font-weight:900}
+body.beamer-mode .beamer-view .teen-row-big{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:30px}
+body.beamer-mode .beamer-view .teen-row-big .tchip{padding:16px 26px;border-radius:16px;font-size:1.8rem;border:3px solid var(--tcol);background:color-mix(in srgb,var(--tcol) 14%,transparent)}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login">
+  <div class="landing-logo" id="landingLogo">✦ Teens-Abschluss ✦</div>
+  <div class="landing-sub" id="coupleName">Mitmach-Spiel</div>
+  <div class="landing-card">
+    <div class="landing-emoji">🎉</div>
+    <h2 style="margin:6px 0">Herzlich willkommen!</h2>
+    <div class="sub">Name ist freiwillig. Wähle ein Teen, das du anfeuern (oder kennenlernen) willst – oder bleib offen.</div>
+    <input id="nameInp" placeholder="Dein Name (optional)" maxlength="24" autocomplete="off">
+    <div class="team-pick" id="teamPick"><!-- wird aus den Teens generiert --></div>
+    <button id="btnJoin">Mitmachen</button>
+    <button id="btnHost" class="btn-ghost hidden" style="margin-top:8px">👑 Als Host starten (kein Team)</button>
+  </div>
+  <div class="host-hint">PoC · 3× Logo tippen für Host-Modus</div>
+</div>
+
+<!-- ===== APP (player view) ===== -->
+<div id="app" class="wrap hidden">
+  <div class="topbar">
+    <h1>✦ Teens-Abschluss</h1>
+    <div class="badge" id="userBadge"></div>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab active" data-tab="Game"><span class="ic">🎮</span>Spiel</button>
+    <button class="tab" data-tab="Score"><span class="ic">🏆</span>Rangliste</button>
+    <button class="tab hostOnly hidden" data-tab="Host"><span class="ic">👑</span>Host</button>
+  </div>
+
+  <!-- GAME TAB -->
+  <div id="tabGame" class="tabPane">
+    <div id="gamePanel" class="card hidden">
+      <div id="gameBody"></div>
+    </div>
+    <div id="tapPanel" class="card hidden">
+      <div id="tapBody"></div>
+    </div>
+    <div id="gameWait" class="card">
+      <div style="text-align:center;padding:20px">
+        <div style="font-size:3rem">⏳</div>
+        <h2 style="margin-top:10px">Warten auf das nächste Spiel</h2>
+        <div class="sub">Der Host startet gleich...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE TAB -->
+  <div id="tabScore" class="tabPane hidden">
+    <div class="card">
+      <h2 style="text-align:center">Fan-Teams</h2>
+      <div class="team-board" id="teamBoard"></div>
+    </div>
+    <div class="card">
+      <h3>Einzel-Rangliste</h3>
+      <div id="leaderboard"></div>
+    </div>
+  </div>
+
+  <!-- HOST TAB -->
+  <div id="tabHost" class="tabPane hidden">
+    <div class="card">
+      <h2>👑 Host-Panel</h2>
+      <div id="hostStatus" class="sub"></div>
+    </div>
+    <div id="hostControls" class="hidden">
+
+      <div class="card">
+        <h3>🎯 Quiz-Set starten</h3>
+        <select id="setSel"></select>
+        <div class="row">
+          <input id="timerOverride" type="number" placeholder="Timer (Sek)" style="max-width:140px">
+          <button id="btnStartSet" class="btn-green">🚀 Set starten</button>
+        </div>
+        <div class="sub">Leer lassen für Standard-Timer des Sets</div>
+      </div>
+
+      <div class="card">
+        <h3>🔥 Zwischenspiel</h3>
+        <button id="btnStartTap" class="btn-orange">⚡ Tap-Duell starten (15 Sek)</button>
+        <div class="sub">Fan-Team mit den meisten Taps pro Person gewinnt 1 Rundensieg.</div>
+      </div>
+
+      <div class="card">
+        <h3>🔧 Laufendes Spiel</h3>
+        <div id="runningStatus" class="sub">Kein Spiel aktiv</div>
+        <button id="btnReveal" class="btn-green" disabled>✓ Jetzt auflösen</button>
+        <button id="btnNextQ" class="hidden">➡️ Nächste Frage</button>
+        <button id="btnAddTime" class="btn-ghost btn-sm" style="width:auto" disabled>+10 Sek</button>
+        <button id="btnEndGame" class="btn-red">✗ Abbrechen</button>
+      </div>
+
+      <div class="card">
+        <h3>🖥️ Beamer</h3>
+        <div class="sub">Am Beamer-Laptop öffnen:</div>
+        <div id="beamerUrl" style="background:var(--card2);padding:10px;border-radius:8px;font-family:monospace;font-size:.8rem;word-break:break-all;margin:6px 0"></div>
+        <button id="btnCopyUrl" class="btn-ghost btn-sm" style="width:auto">URL kopieren</button>
+      </div>
+
+      <div class="card">
+        <h3>⚙️ Einstellungen</h3>
+        <button class="btn-ghost" id="btnResetScores">Alle Scores auf 0</button>
+        <button class="btn-red" id="btnFullReset">⚠️ Kompletter Neustart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BEAMER VIEW ===== -->
+<div id="beamer" class="wrap hidden">
+  <div class="beamer-view" id="beamerView"></div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script type="module" src="./js/content.js"></script>
+<script type="module" src="./js/core.js"></script>
+<script type="module" src="./js/games.js"></script>
+<script type="module" src="./js/tapduel.js"></script>
+<script type="module" src="./js/beamer.js"></script>
+</body>
+</html>
