@@ -33,11 +33,13 @@ window.TeensContent = {
   // ═══════════════════════════════════════════════════════
   // (Pseudo-Namen – am Event durch die echten Teens ersetzen)
   teens: [
-    { id: "t1", name: "Noah",  emoji: "🧑", color: "#e8a4b8", photo: "" },
-    { id: "t2", name: "Lena",  emoji: "👧", color: "#6ba3c7", photo: "" },
-    { id: "t3", name: "Elias", emoji: "👦", color: "#7ed987", photo: "" },
-    { id: "t4", name: "Mia",   emoji: "👩", color: "#e8a555", photo: "" },
-    { id: "t5", name: "Jonas", emoji: "🧒", color: "#b98ce8", photo: "" }
+
+    Jeditha Linda Joshua Ruby Gina 
+    { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "" },
+    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "" },
+    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "" },
+    { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", photo: "" },
+    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "" }
   ],
 
   // ═══════════════════════════════════════════════════════
@@ -59,40 +61,40 @@ window.TeensContent = {
     // ─────────────────────────────────────────────────────
     trivia: [
       { q: "Wer steht hier mit dem Stab im Wasser?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+1",
+        photoUrl: "https://cdn.pixabay.com/photo/2024/05/27/13/03/moses-leads-out-8791210_1280.png",
         options: ["Mose", "Noah", "David", "Elia", "Josua"], answer: "Mose" },
 
       { q: "Welche Figur baute hier das grosse Boot?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+2",
+        photoUrl: "https://images.pexels.com/photos/31918251/pexels-photo-31918251.jpeg",
         options: ["Noah", "Abraham", "Jona", "Salomo", "Mose"], answer: "Noah" },
 
       { q: "Wer besiegt hier den Riesen mit einer Schleuder?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+3",
+        photoUrl: "https://images.pexels.com/photos/30610666/pexels-photo-30610666.jpeg",
         options: ["David", "Simson", "Gideon", "Saul", "Josua"], answer: "David" },
 
       { q: "Wer steckt hier im Bauch des grossen Fisches?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+4",
+        photoUrl: "https://images.pexels.com/photos/13028012/pexels-photo-13028012.jpeg",
         options: ["Jona", "Petrus", "Paulus", "Daniel", "Noah"], answer: "Jona" },
 
       { q: "Wer sitzt hier ruhig zwischen den Löwen?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+5",
+        photoUrl: "https://images.pexels.com/photos/11630769/pexels-photo-11630769.jpeg",
         options: ["Daniel", "David", "Josef", "Elia", "Mose"], answer: "Daniel" },
 
       { q: "Welcher Starke hat hier die langen Haare?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+6",
+        photoUrl: "https://images.pexels.com/photos/12383166/pexels-photo-12383166.jpeg",
         options: ["Simson", "Goliath", "Esau", "Saul", "David"], answer: "Simson" },
 
       { q: "Wer hält hier das Jesuskind im Arm?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+7",
+        photoUrl: "https://images.pexels.com/photos/36588118/pexels-photo-36588118.jpeg",
         options: ["Maria", "Marta", "Ruth", "Ester", "Hanna"], answer: "Maria" },
 
       { q: "Wer tauft hier am Jordan?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+8",
+        photoUrl: "https://images.pexels.com/photos/10619928/pexels-photo-10619928.jpeg",
         options: ["Johannes der Täufer", "Petrus", "Paulus", "Andreas", "Elia"],
         answer: "Johannes der Täufer" },
 
       { q: "Wer hält hier die Schlüssel und stand im Boot?",
-        photoUrl: "https://via.placeholder.com/600x600/1a1014/d4af37?text=Bibel+9",
+        photoUrl: "https://images.pexels.com/photos/8892874/pexels-photo-8892874.jpeg",
         options: ["Petrus", "Johannes", "Thomas", "Judas", "Matthäus"], answer: "Petrus" }
     ],
 
