@@ -93,7 +93,7 @@ function renderQuizDone(view){
       const medal = ['🥇','🥈','🥉'][i] || ((i+1)+'.');
       const displayName = d.name || n.split('_')[0];
       html += `<div style="padding:12px 24px;margin:8px 0;background:rgba(255,255,255,.04);border-left:5px solid ${A.teamColor(d.team)};border-radius:8px;display:flex;justify-content:space-between;font-size:1.6rem">
-        <span>${medal} ${displayName}</span> <strong style="color:var(--gold)">${(d.score || 0).toLocaleString('de-CH')} Pkt</strong>
+        <span>${medal} ${displayName}</span>&nbsp;<strong style="color:var(--gold)">${(d.score || 0).toLocaleString('de-CH')} Pkt</strong>
       </div>`;
     });
     html += `</div>`;
