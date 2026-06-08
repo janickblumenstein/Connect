@@ -17,7 +17,7 @@ function injectQrOverlay(){
   overlay.id = "beamerQrOverlay";
   overlay.innerHTML = `
     <div style="background:#fff;padding:7px;border-radius:10px;display:inline-block;box-shadow:0 2px 12px rgba(0,0,0,.5)">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(GAME_URL)}" width="120" height="120" alt="QR">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(GAME_URL)}" width="240" height="240" alt="QR">
     </div>
     <div style="font-family:monospace;font-size:.75rem;color:var(--gold);margin-top:5px;text-align:center;opacity:.8">
       Scan mich & mach mit
@@ -93,7 +93,7 @@ function renderQuizDone(view){
       const medal = ['🥇','🥈','🥉'][i] || ((i+1)+'.');
       const displayName = d.name || n.split('_')[0];
       html += `<div style="padding:12px 24px;margin:8px 0;background:rgba(255,255,255,.04);border-left:5px solid ${A.teamColor(d.team)};border-radius:8px;display:flex;justify-content:space-between;font-size:1.6rem">
-        <span>${medal} ${displayName}</span><strong style="color:var(--gold)">${d.score||0} Pkt</strong>
+        <span>${medal} ${displayName}</span> <strong style="color:var(--gold)">${(d.score || 0).toLocaleString('de-CH')} Pkt</strong>
       </div>`;
     });
     html += `</div>`;
