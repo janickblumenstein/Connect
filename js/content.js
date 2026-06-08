@@ -8,7 +8,7 @@
 window.TeensContent = {
 
   // Titel/Untertitel auf Login & Beamer (✦ wird automatisch ergänzt)
-  eventTitle: "CONNECT GALA",
+  eventTitle: "LIFESTYLE Teensabschluss",
   subtitle:   "Roter Teppich · heute sind die Teens die Stars",
 
   // Login-Button für Gäste, die sich (noch) keinem Teen zuordnen wollen.
