@@ -35,11 +35,11 @@ window.TeensContent = {
   teens: [
 
     Jeditha Linda Joshua Ruby Gina 
-    { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "" },
-    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "" },
-    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "" },
-    { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", photo: "" },
-    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "" }
+    { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "https://images.pexels.com/photos/32887406/pexels-photo-32887406.jpeg" },
+    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "https://images.pexels.com/photos/8147397/pexels-photo-8147397.jpeg" },
+    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "https://images.pexels.com/photos/452557/pexels-photo-452557.jpeg" },
+    { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", photo: "https://images.pexels.com/photos/3988848/pexels-photo-3988848.jpeg" },
+    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "https://images.pexels.com/photos/13231911/pexels-photo-13231911.jpeg" }
   ],
 
   // ═══════════════════════════════════════════════════════
