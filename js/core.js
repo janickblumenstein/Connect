@@ -91,6 +91,7 @@ async function connectBeamer(){
   onValue(ref(db, `rooms/${App.room}/game`),    snap=>{ App.state.game = snap.val(); beamerUpdate(); });
   onValue(ref(db, `rooms/${App.room}/quiz`),    snap=>{ App.state.quiz = snap.val(); beamerUpdate(); });
   onValue(ref(db, `rooms/${App.room}/tapduel`), snap=>{ App.state.tapduel = snap.val(); beamerUpdate(); });
+  onValue(ref(db, `rooms/${App.room}/show`),    snap=>{ App.state.show = snap.val(); beamerUpdate(); });
 }
 function beamerUpdate(){ if(App.listeners.onBeamerUpdate) App.listeners.onBeamerUpdate(); }
 
@@ -299,9 +300,15 @@ function attachListeners() {
 function renderBadge(){
   const badge = App.$("userBadge");
   if(!badge) return;
-  const emoji = App.isHost ? "👑" : teamEmoji(App.team);
-  badge.innerHTML = `<span class="badge" style="color:${App.isHost?'var(--gold)':teamColor(App.team)}">${emoji} ${App.userName}</span>` +
-                    (App.isHost ? ' <span class="badge host"> (Host)</span>' : '');
+  if(App.isHost){
+    badge.innerHTML = `<span class="badge" style="color:var(--gold)">👑 ${App.userName}</span> <span class="badge host">(Host)</span>`;
+    return;
+  }
+  // Gäste sehen ihre Gruppe deutlich: Team + Name (z.B. "🧑 Team Noah · Gast 5")
+  const t = teamById(App.team);
+  const av = t ? avatarHtml(t) : "";
+  badge.innerHTML = `<span class="badge userchip" style="color:${teamColor(App.team)}">${av}` +
+                    `<span class="uctxt">Team ${teamName(App.team)} · <b>${App.userName}</b></span></span>`;
 }
 
 function bindCoreUI(){
@@ -348,26 +355,27 @@ function switchTab(name){
   if(t) t.classList.remove("hidden");
 }
 
-// ── Team-Board: eine Karte pro Teen-Team ────────────────────
+// ── Team-Board: eine Karte pro Teen-Team (kumulierte Ø-Punkte) ──
 function renderTeamBoard(){
   const board = App.$("teamBoard"); if(!board) return;
   const players = App.players || {};
-  const wins = App.teams || {};
+  const pts = App.teams || {};
 
   // Mitgliederzahl pro Team
   const memberCount = {};
   Object.values(players).forEach(p=>{ if(p.team) memberCount[p.team] = (memberCount[p.team]||0)+1; });
 
-  const maxWins = Math.max(0, ...allTeams().map(t => wins[t.id] || 0));
+  const maxPts = Math.max(0, ...allTeams().map(t => pts[t.id] || 0));
+  const sorted = allTeams().slice().sort((a,b)=>(pts[b.id]||0)-(pts[a.id]||0));
 
-  board.innerHTML = allTeams().map(t=>{
-    const w = wins[t.id] || 0;
-    const winning = w > 0 && w === maxWins;
+  board.innerHTML = sorted.map(t=>{
+    const p = pts[t.id] || 0;
+    const winning = p > 0 && p === maxPts;
     return `
       <div class="team-card ${winning?'team-winning':''}" style="--tcol:${t.color}">
         <div class="nm">${t.emoji} ${t.name}</div>
-        <div class="pts" style="color:${t.color}">${w}</div>
-        <div class="pts-sub">Rundensiege</div>
+        <div class="pts" style="color:${t.color}">${p}</div>
+        <div class="pts-sub">Punkte</div>
         <div class="mem">${memberCount[t.id]||0} Fans</div>
       </div>`;
   }).join("");

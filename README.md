@@ -24,15 +24,21 @@ tippen am Handy mit.
 
 ## 🏆 Wertung – zwei Ranglisten
 
-- **Team (relativ, nie absolut):** Pro Frage gewinnt das Fan-Team mit der höchsten
-  **Trefferquote in %** die Runde (+1). Teamgrösse egal → über alle ~20 Fragen
-  ergeben sich ~20 Team-Punkte. Bei Schwarm-Fragen = höchste Übereinstimmung mit der
-  Mehrheit.
 - **Einzel (Kahoot-Stil mit Tempo):** Richtige Antwort gibt **500–1000 Punkte** je
   nach Reaktionszeit – **wer schneller richtig tippt, bekommt mehr**. Falsch = 0.
   Die Zeit wird **pro Gerät** ab Erscheinen der Frage gemessen (fair trotz Latenz).
-- **Tap-Duell** als Zwischenspiel: schnellstes Fan-Team gewinnt 1 Runde; die
-  schnellsten Finger bekommen 1000/600/300 Einzelpunkte.
+- **Team (Ø-Punkte pro Runde, kumuliert):** Jedes Team erhält pro Frage die
+  **durchschnittliche Punktzahl** seiner abgegebenen Antworten — Summe der
+  (zeitabhängigen) Punkte aller Richtigen ÷ Anzahl Antwortende. Beispiel: 40 von
+  50 Fans tippen, 30 richtig → deren Punkte ÷ 40 ≈ **630 Pkt fürs Team**. Diese
+  Ø-Punkte werden kumuliert (keine „Rundensiege" mehr) → **alle werden belohnt**,
+  nicht nur der/die Schnellste, und der Wettkampf läuft auch zwischen den Gruppen.
+  Nenner konfigurierbar (`teamAvgDenominator`: `answered`/`members`). Bei
+  Schwarm-Fragen zählt „mit der Mehrheit getippt" als richtig.
+- **Tap-Duell** als Zwischenspiel: schnellstes Fan-Team bekommt **+800 Team-Punkte**,
+  die schnellsten Finger 1000/600/300 Einzelpunkte.
+- **Bild-Freigabe:** Foto-Fragen starten verpixelt und werden über den Countdown
+  scharf (`photoReveal`) – früh tippen ist schwerer, aber bringt mehr Tempo-Punkte.
 
 ## 📁 Projekt-Struktur
 
@@ -107,7 +113,9 @@ Alternativ Vercel oder GitHub Pages.
 **Host:** 3× auf den Titel/Logo tippen → Host-Button → **PIN** (Standard `4800`)
 → ohne Team starten → Host-Tab → Set wählen (z.B. „🎬 Gala-Show") → auflösen
 (oder Auto-Auflösung) → nächste Frage. Unpassende Namen im Host-Tab unter
-„🧹 Gäste & Namen" mit einem Klick auf „→ Gast" neutralisieren.
+„🧹 Gäste & Namen" mit einem Klick auf „→ Gast" neutralisieren. Mit
+**„🏆 Rangliste zeigen"** kann der Host die Rangliste jederzeit (auch nach dem
+Quiz) auf den Beamer holen.
 
 **Beamer-Laptop:** gleiche URL mit `?beamer=1` (Vollbild). Grosser QR im
 Wartezustand, kleiner QR oben rechts während einer Frage.

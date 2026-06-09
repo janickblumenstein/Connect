@@ -43,12 +43,15 @@ function render(){
   const view = document.getElementById("beamerView");
   if(!view) return;
   const g = A.state.game, q = A.state.quiz, tap = A.state.tapduel;
+  const show = A.state.show;
 
-  // Eck-QR nur während laufender Frage zeigen; bei Idle/Ende gibt es den
-  // grossen zentralen QR, beim Tap-Duell stört er nicht.
+  // Eck-QR nur während laufender Frage zeigen.
   const ov = document.getElementById("beamerQrOverlay");
-  const showCornerQr = !!g && g.type !== "_quizdone" && !tap;
+  const showCornerQr = !show && !!g && g.type !== "_quizdone" && !tap;
   if(ov) ov.style.display = showCornerQr ? "" : "none";
+
+  // Host kann jederzeit die Rangliste auf den Beamer holen (Vorrang).
+  if(show === "scores"){ stopBeamerTimer(); renderScores(view); return; }
 
   if(tap){ renderTapDuel(view, tap); return; }
   if(!g){ stopBeamerTimer(); renderIdle(view); return; }
@@ -56,19 +59,48 @@ function render(){
   renderActiveGame(view, g, q);
 }
 
-// Kompakte Team-Übersicht (Karten) für den Beamer
+// Kompakte Team-Übersicht (Karten) für den Beamer – kumulierte Punkte
 function teamCardsBig(){
-  const wins = A.teams || {};
-  const maxWins = Math.max(0, ...A.allTeams().map(t=>wins[t.id]||0));
-  return `<div class="team-score-big">` + A.allTeams().map(t=>{
-    const w = wins[t.id]||0;
-    const lead = w>0 && w===maxWins;
+  const pts = A.teams || {};
+  const maxPts = Math.max(0, ...A.allTeams().map(t=>pts[t.id]||0));
+  const sorted = A.allTeams().slice().sort((a,b)=>(pts[b.id]||0)-(pts[a.id]||0));
+  return `<div class="team-score-big">` + sorted.map(t=>{
+    const w = pts[t.id]||0;
+    const lead = w>0 && w===maxPts;
     return `<div class="tcard ${lead?'team-winning':''}" style="--tcol:${t.color}">
-      <div class="label">${t.emoji} ${t.name}</div>
+      <div class="label">${avatarChip(t)} ${t.name}</div>
       <div class="value" style="color:${t.color}">${w}</div>
-      <div class="sublabel">Rundensiege</div>
+      <div class="sublabel">Punkte</div>
     </div>`;
   }).join("") + `</div>`;
+}
+
+// kleiner runder Avatar (Foto/Emoji) für Beamer-Labels
+function avatarChip(t){
+  if(t && t.photo) return `<span class="bav" style="background-image:url('${t.photo}')"></span>`;
+  return `<span>${(t&&t.emoji)||"👤"}</span>`;
+}
+
+// Vollbild-Rangliste (Host-Button "Rangliste am Beamer")
+function renderScores(view){
+  const pts = A.teams || {};
+  const topPlayers = Object.entries(A.players || {})
+    .sort((a,b)=>(b[1].score||0)-(a[1].score||0)).slice(0, 8);
+  let html = `<h1>🏆 Rangliste</h1>`;
+  html += teamCardsBig();
+  if(topPlayers.length){
+    html += `<div style="margin-top:40px;max-width:760px;margin-left:auto;margin-right:auto">
+      <div class="sub-big">🌟 Top-Stars (Einzel)</div>`;
+    topPlayers.forEach(([n,d],i)=>{
+      const medal = ['🥇','🥈','🥉'][i] || ((i+1)+'.');
+      const displayName = d.name || n.split('_')[0];
+      html += `<div style="padding:12px 24px;margin:8px 0;background:rgba(255,255,255,.04);border-left:5px solid ${A.teamColor(d.team)};border-radius:8px;display:flex;justify-content:space-between;font-size:1.6rem">
+        <span>${medal} ${displayName} <span style="opacity:.5;font-size:1.1rem">· ${A.teamName(d.team)}</span></span><strong style="color:var(--gold)">${d.score||0} Pkt</strong>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  view.innerHTML = html;
 }
 
 function renderIdle(view){
@@ -89,16 +121,16 @@ function renderIdle(view){
 }
 
 function renderQuizDone(view){
-  const wins = A.teams || {};
-  const teamsSorted = A.allTeams().slice().sort((a,b)=>(wins[b.id]||0)-(wins[a.id]||0));
+  const pts = A.teams || {};
+  const teamsSorted = A.allTeams().slice().sort((a,b)=>(pts[b.id]||0)-(pts[a.id]||0));
   const leader = teamsSorted[0];
-  const leadWins = wins[leader?.id]||0;
+  const leadPts = pts[leader?.id]||0;
   const topPlayers = Object.entries(A.players || {})
     .sort((a,b)=>(b[1].score||0)-(a[1].score||0)).slice(0, 5);
 
   let html = `<h1>🏁 Quiz beendet!</h1>`;
-  if(leadWins > 0){
-    html += `<div class="question" style="color:var(--gold)">🏆 ${leader.emoji} ${leader.name} führt!</div>`;
+  if(leadPts > 0){
+    html += `<div class="question" style="color:var(--gold)">🏆 ${leader.emoji} ${leader.name} gewinnt!</div>`;
   }
   html += teamCardsBig();
   if(topPlayers.length){
@@ -129,7 +161,15 @@ function renderActiveGame(view, g, q){
   html += `<div class="question">${g.q}</div>`;
 
   if(g.photoUrl){
-    html += `<div class="photo-box" style="margin:20px auto;max-width:500px;aspect-ratio:1"><img src="${g.photoUrl}" alt=""></div>`;
+    // Progressive Freigabe: im Antwort-Modus startet das Bild unscharf.
+    const reveal = (window.TeensContent && window.TeensContent.photoReveal) !== false;
+    const maxB = (window.TeensContent && window.TeensContent.photoBlurMax) || 26;
+    let blur = 0;
+    if(g.phase === "answer" && reveal && g.endsAt && g.startedAt){
+      const f = Math.max(0, Math.min(1, (g.endsAt - Date.now()) / (g.endsAt - g.startedAt)));
+      blur = Math.round(maxB * f * 1.4);   // auf der grossen Leinwand etwas stärker
+    }
+    html += `<div class="photo-box" style="margin:20px auto;max-width:500px;aspect-ratio:1"><img src="${g.photoUrl}" style="filter:blur(${blur}px)" alt=""></div>`;
   }
 
   if(g.phase === "answer"){
@@ -176,26 +216,12 @@ function renderRevealBeamer(g){
       html += `<div class="question" style="color:var(--orange);font-size:3rem">Gleichstand – kein Mehrheitsvotum</div>`;
     }
     html += bigDistribution(r.breakdown || {}, g.answer);
-    if(r.teamStats){
-      const parts = A.allTeams().map(t=>{
-        const ts = r.teamStats[t.id];
-        if(!ts || ts.total === 0) return "";
-        return `<span style="color:${t.color}">${t.emoji} ${(ts.rate*100).toFixed(0)}%</span>`;
-      }).filter(Boolean).join(" · ");
-      html += `<div class="sub-big" style="margin-top:20px">${parts}</div>`;
-    }
+    html += teamResultsBig(r);
   }
   else if(g.type === "trivia"){
     html += `<div class="question" style="color:var(--green);font-size:3.5rem">✓ ${g.answer}</div>`;
     html += bigOptionDistribution(r.breakdown || {}, g.answer, g.options || []);
-    if(r.teamStats){
-      const parts = A.allTeams().map(t=>{
-        const ts = r.teamStats[t.id];
-        if(!ts || ts.total === 0) return "";
-        return `<span style="color:${t.color}">${t.emoji} ${(ts.rate*100).toFixed(0)}%</span>`;
-      }).filter(Boolean).join(" · ");
-      html += `<div class="sub-big" style="margin-top:20px">${parts}</div>`;
-    }
+    html += teamResultsBig(r);
   }
   else if(g.type === "estimate"){
     html += `<div class="question" style="color:var(--green);font-size:3.5rem">✓ ${g.answer}${g.unit?' '+g.unit:''}</div>`;
@@ -216,13 +242,36 @@ function renderRevealBeamer(g){
     }
   }
 
-  if(r.roundWinner){
-    const t = A.teamById(r.roundWinner) || {};
-    html += `<div class="question" style="color:var(--gold);margin-top:30px">🏆 +1 Runde: ${t.emoji||''} ${t.name||r.roundWinner}</div>`;
-  } else {
-    html += `<div class="sub-big" style="margin-top:30px">Unentschieden – keine Rundenpunkte</div>`;
+  if(r.roundBest && g.type !== "estimate"){
+    const t = A.teamById(r.roundBest) || {};
+    const avg = r.teamStats?.[r.roundBest]?.roundAvg;
+    html += `<div class="question" style="color:var(--gold);margin-top:24px">🏆 Beste Runde: ${t.emoji||''} ${t.name||r.roundBest} · Ø ${avg} Pkt</div>`;
   }
   return html;
+}
+
+// Team-Auflösung gross: pro Team Foto + Name + Treffer + Ø-Punkte.
+// Farblich ENTKOPPELT von den Antwort-Optionen → keine falsche Verbindung.
+function teamResultsBig(r){
+  if(!r.teamStats) return "";
+  const rows = A.allTeams().slice()
+    .filter(t => r.teamStats[t.id] && r.teamStats[t.id].answered > 0)
+    .sort((a,b)=>(r.teamStats[b.id].roundAvg||0)-(r.teamStats[a.id].roundAvg||0));
+  if(!rows.length) return "";
+  let h = `<div style="max-width:900px;margin:26px auto 0;display:flex;flex-direction:column;gap:10px">`;
+  h += rows.map(t=>{
+    const ts = r.teamStats[t.id];
+    const best = r.roundBest === t.id;
+    const bg = best ? "rgba(212,175,55,.18)" : "rgba(255,255,255,.04)";
+    const bd = best ? "var(--gold)" : t.color;
+    return `<div style="display:flex;align-items:center;gap:18px;padding:12px 22px;border-radius:14px;background:${bg};border-left:8px solid ${bd};font-size:1.7rem">
+      <span style="display:flex;align-items:center;gap:12px;flex:1;text-align:left">${avatarChip(t)} <b>${t.name}</b></span>
+      <span style="opacity:.8;font-size:1.4rem">${ts.correct}/${ts.answered} · ${(ts.rate*100).toFixed(0)}%</span>
+      <strong style="color:var(--gold);min-width:160px;text-align:right">Ø ${ts.roundAvg} Pkt</strong>
+    </div>`;
+  }).join("");
+  h += `</div>`;
+  return h;
 }
 
 // Gestapelter Balken über alle getippten Teens (Beamer-Grösse)

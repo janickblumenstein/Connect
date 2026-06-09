@@ -20,6 +20,15 @@ function ansTime(raw){ return (raw && typeof raw === "object") ? raw.t : null; }
 // Text für ein HTML-Attribut absichern (Trivia-Optionen können Sonderzeichen haben).
 function escAttr(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
+// Progressive Bild-Freigabe: Foto startet unscharf und wird über den Timer
+// stetig klarer. blur(px) ∝ verbleibender Zeit.
+function photoRevealOn(){ return (window.TeensContent && window.TeensContent.photoReveal) !== false; }
+function photoBlurPx(leftMs, totalMs){
+  const max = (window.TeensContent && window.TeensContent.photoBlurMax) || 26;
+  if(!(totalMs > 0)) return 0;
+  return Math.round(max * Math.max(0, Math.min(1, leftMs / totalMs)));
+}
+
 // Auto-Auflösung nach Countdown (global, Standard aus content.js).
 A.autoReveal = (window.TeensContent && window.TeensContent.autoReveal) !== false;
 let hostRevealTimer = null;
@@ -146,6 +155,11 @@ function bindHostUI(){
     ar.checked = A.autoReveal;
     ar.onchange = ()=>{ A.autoReveal = ar.checked; scheduleAutoReveal(); toast(A.autoReveal ? "Auto-Auflösung an" : "Auto-Auflösung aus"); };
   }
+
+  const bs = $("btnShowScores");
+  if(bs) bs.onclick = async()=>{ if(!A.isHost) return; await set(ref(db, `rooms/${A.room}/show`), "scores"); toast("🏆 Rangliste am Beamer"); };
+  const bh = $("btnHideScores");
+  if(bh) bh.onclick = async()=>{ if(!A.isHost) return; await remove(ref(db, `rooms/${A.room}/show`)); toast("Beamer zurück zum Spiel"); };
 }
 
 function renderHostStatus(){
@@ -190,6 +204,7 @@ function renderHostStatus(){
 async function startSelectedSet(){
   if(!A.isHost) return;
   await remove(ref(db, `rooms/${A.room}/tapduel`));
+  await remove(ref(db, `rooms/${A.room}/show`));   // Rangliste-Overlay am Beamer aus
 
   const setId = $("setSel").value;
   const sets = (window.TeensContent || {}).sets || [];
@@ -342,6 +357,8 @@ function updateTimerDisplay(leftMs, totalMs){
     fill.classList.toggle("crit", leftSec <= 5);
   }
   if(num) num.innerText = leftSec + "s";
+  const img = document.getElementById("qphoto");
+  if(img && photoRevealOn()) img.style.filter = `blur(${photoBlurPx(leftMs, totalMs)}px)`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -380,7 +397,9 @@ function renderGame(){
   html += `<div class="q-big">${g.q}</div>`;
 
   if(g.photoUrl){
-    html += `<div class="photo-box"><img src="${g.photoUrl}" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;ph&quot;>📷</div>'"></div>`;
+    const blur = (g.phase === "answer" && photoRevealOn() && g.endsAt)
+      ? photoBlurPx(g.endsAt - Date.now(), g.endsAt - g.startedAt) : 0;
+    html += `<div class="photo-box"><img id="qphoto" style="filter:blur(${blur}px)" src="${g.photoUrl}" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;ph&quot;>📷</div>'"></div>`;
   }
 
   if(g.phase === "answer"){
@@ -504,11 +523,11 @@ async function revealCurrent() {
   const teamIds = A.allTeams().map(t => t.id);
   const totalMs = (g.endsAt && g.startedAt) ? (g.endsAt - g.startedAt) : null;
 
-  // teamStats: für jedes Team correct/answered/total/rate
+  // teamStats: pro Team correct/answered/rate + Ø-Punkte der Runde
   const teamStats = {};
-  teamIds.forEach(id => teamStats[id] = { correct: 0, answered: 0, total: 0, rate: 0 });
-  // Mitgliederzahl pro Team (für "members"-Modus = relativ zur Gruppengrösse)
-  const rateMode = (window.TeensContent && window.TeensContent.teamRateDenominator) || "members";
+  teamIds.forEach(id => teamStats[id] = { correct: 0, answered: 0, rate: 0, sumPts: 0, roundAvg: 0 });
+  // Mitgliederzahl pro Team (für "members"-Nenner)
+  const avgMode = (window.TeensContent && window.TeensContent.teamAvgDenominator) || "answered";
   const memberCount = {}; teamIds.forEach(id => memberCount[id] = 0);
   Object.values(players).forEach(p => { if (p.team && memberCount[p.team] !== undefined) memberCount[p.team]++; });
   const breakdown = {};   // Antwort-Verteilung (key = getippter Wert)
@@ -534,11 +553,12 @@ async function revealCurrent() {
     }
   }
 
-  let winner = null;
+  let roundBest = null;          // Team mit dem höchsten Ø dieser Runde (nur Highlight)
   let finalCorrectAnswer = g.answer;
+  const teamRoundPts = {};       // { teamId: Ø-Punkte dieser Runde } für die teams-Gutschrift
 
   if (g.type === "estimate") {
-    // ── SCHÄTZFRAGE: Top 3 punkten, Rundensieg = Team des Siegers ──
+    // ── SCHÄTZFRAGE (Nebenmodus): nur Einzel-Top-3, keine Team-Punkte ──
     ranking.sort((a, b) => a.diff - b.diff);
     let currentPts = 3;
     let lastDiff = ranking.length > 0 ? ranking[0].diff : -1;
@@ -553,13 +573,6 @@ async function revealCurrent() {
       addScore(ranking[i].uid, currentPts);
       ranking[i].awardedPts = currentPts;
     }
-    if (ranking.length > 0) {
-      const bestDiff = ranking[0].diff;
-      const topWinners = ranking.filter(r => r.diff === bestDiff);
-      const byTeam = {};
-      topWinners.forEach(r => { if(r.team) byTeam[r.team] = (byTeam[r.team]||0)+1; });
-      winner = pickMax(byTeam);
-    }
   } else {
     // ── RATEN/TRIVIA/SCHWARM ─────────────────────────────────
     // Bei "poll" gibt es keine feste Antwort → Mehrheit = richtig.
@@ -571,21 +584,27 @@ async function revealCurrent() {
         if (a.v === finalCorrectAnswer) {
           const p = players[uid];
           if (!p) continue;
-          if (p.team && teamStats[p.team]) teamStats[p.team].correct++;
-          addScore(uid, speedPoints(a.t, totalMs));  // EINZEL: Tempo zählt
+          const pts = speedPoints(a.t, totalMs);      // zeitabhängige Punkte
+          addScore(uid, pts);                          // EINZEL: jeder Richtige bekommt seine Punkte
+          if (p.team && teamStats[p.team]) {
+            teamStats[p.team].correct++;
+            teamStats[p.team].sumPts += pts;           // für den Team-Ø
+          }
         }
       }
     }
-    // TEAM: Rundensieg = höchste TREFFERQUOTE (relativ zur Gruppengrösse).
-    // Nenner je nach Konfig: alle Fans ("members") oder nur Antwortende ("voters").
-    const rates = {};
+    // TEAM: Ø-Punkte der Runde = Summe der Punkte richtiger Tipps ÷ Nenner.
+    // Nenner: Anzahl Antwortende ("answered", Standard) oder alle Fans ("members").
+    let bestAvg = -1;
     teamIds.forEach(id => {
       const ts = teamStats[id];
-      ts.total = rateMode === "members" ? memberCount[id] : ts.answered;
-      ts.rate = ts.total > 0 ? ts.correct / ts.total : 0;
-      if (ts.total > 0) rates[id] = ts.rate;
+      const denom = avgMode === "members" ? memberCount[id] : ts.answered;
+      ts.rate = ts.answered > 0 ? ts.correct / ts.answered : 0;
+      ts.roundAvg = denom > 0 ? Math.round(ts.sumPts / denom) : 0;
+      if (ts.answered > 0) teamRoundPts[id] = ts.roundAvg;
+      if (ts.roundAvg > bestAvg) { bestAvg = ts.roundAvg; roundBest = id; }
     });
-    winner = pickMaxStrict(rates);
+    if (bestAvg <= 0) roundBest = null;
   }
 
   // ── BATCH: alle Punkte in einem einzigen Firebase-Update ──
@@ -597,17 +616,21 @@ async function revealCurrent() {
     await update(ref(db, `rooms/${A.room}/players`), scoreUpdates);
   }
 
-  if (winner) {
-    const tRef = ref(db, `rooms/${A.room}/teams/${winner}`);
-    const cur = (await get(tRef)).val() || 0;
-    await set(tRef, cur + 1);
+  // ── TEAM: jedem Team seine Ø-Punkte der Runde gutschreiben (kumuliert) ──
+  if (Object.keys(teamRoundPts).length > 0) {
+    const cur = (await get(ref(db, `rooms/${A.room}/teams`))).val() || {};
+    const teamUpdates = {};
+    for (const [id, avg] of Object.entries(teamRoundPts)) {
+      if (avg > 0) teamUpdates[id] = (cur[id] || 0) + avg;
+    }
+    if (Object.keys(teamUpdates).length) await update(ref(db, `rooms/${A.room}/teams`), teamUpdates);
   }
 
   await update(ref(db, `rooms/${A.room}/game`), {
     phase: "reveal",
     answer: finalCorrectAnswer,
     answered: Object.keys(answers).length,
-    result: { teamStats, breakdown, ranking, roundWinner: winner }
+    result: { teamStats, breakdown, ranking, roundBest }
   });
   // Antworten-Knoten leeren (Verteilung steckt jetzt in result.breakdown).
   A.state.answers = {};
@@ -676,32 +699,12 @@ function buildRevealView(g){
       html += `<div class="flash warn">Kein eindeutiges Mehrheitsvotum (Gleichstand)</div>`;
     }
     html += buildDistribution(r.breakdown || {}, g.answer);
-    if(r.teamStats){
-      html += `<h3>${g.type === "poll" ? "Übereinstimmung mit der Mehrheit:" : "Trefferquote pro Fan-Team:"}</h3>`;
-      A.allTeams().forEach(t=>{
-        const ts = r.teamStats[t.id]; if(!ts || ts.total === 0) return;
-        const win = r.roundWinner === t.id;
-        html += `<div class="score-row ${win?'me':''}">
-          <span><span class="tm" style="background:${t.color}">${t.emoji}</span>${t.name}</span>
-          <strong>${ts.correct}/${ts.total} (${(ts.rate*100).toFixed(0)}%)</strong>
-        </div>`;
-      });
-    }
+    html += teamResultRows(r, g.type === "poll");
   }
   else if(g.type === "trivia"){
     html += `<div class="flash gold"><b>✓ Richtig:</b> ${g.answer}</div>`;
     html += buildOptionDistribution(r.breakdown || {}, g.answer, g.options || []);
-    if(r.teamStats){
-      html += `<h3>Trefferquote pro Fan-Team:</h3>`;
-      A.allTeams().forEach(t=>{
-        const ts = r.teamStats[t.id]; if(!ts || ts.total === 0) return;
-        const win = r.roundWinner === t.id;
-        html += `<div class="score-row ${win?'me':''}">
-          <span><span class="tm" style="background:${t.color}">${t.emoji}</span>${t.name}</span>
-          <strong>${ts.correct}/${ts.total} (${(ts.rate*100).toFixed(0)}%)</strong>
-        </div>`;
-      });
-    }
+    html += teamResultRows(r, false);
   }
   else if(g.type === "estimate"){
     html += `<div class="flash gold"><b>✓ Richtige Antwort:</b> ${g.answer}${g.unit ? ' ' + g.unit : ''}</div>`;
@@ -720,16 +723,36 @@ function buildRevealView(g){
     }
   }
 
-  if(r.roundWinner){
-    const t = A.teamById(r.roundWinner) || {};
+  if(r.roundBest && g.type !== "estimate"){
+    const t = A.teamById(r.roundBest) || {};
+    const avg = r.teamStats?.[r.roundBest]?.roundAvg;
     html += `<div class="flash gold" style="text-align:center;font-size:1.05rem;margin-top:14px">
-      🏆 Rundensieg für ${t.emoji||''} <b>${t.name||r.roundWinner}</b>!
+      🏆 Beste Runde: ${t.emoji||''} <b>${t.name||r.roundBest}</b> – Ø ${avg} Pkt
     </div>`;
-  } else {
-    html += `<div class="flash" style="text-align:center">Unentschieden – keine Rundenpunkte</div>`;
   }
 
   return html;
+}
+
+// Pro Team: Avatar + Name + Quote + Ø-Punkte. Farben sind ENTKOPPELT von den
+// Antwort-Farben (Identifikation über Foto/Name), Prozent neutral dargestellt.
+function teamResultRows(r, pollMode){
+  if(!r.teamStats) return "";
+  const rows = A.allTeams().slice()
+    .filter(t => r.teamStats[t.id] && r.teamStats[t.id].answered > 0)
+    .sort((a,b)=>(r.teamStats[b.id].roundAvg||0)-(r.teamStats[a.id].roundAvg||0));
+  if(!rows.length) return "";
+  let h = `<h3>${pollMode ? "Übereinstimmung mit der Mehrheit" : "Treffer & Ø-Punkte pro Team"}</h3>`;
+  h += rows.map(t=>{
+    const ts = r.teamStats[t.id];
+    const best = r.roundBest === t.id;
+    return `<div class="score-row trow ${best?'me':''}">
+      <span class="trow-team">${A.avatarHtml(t)}<b>${t.name}</b></span>
+      <span class="trow-stat">${ts.correct}/${ts.answered} · ${(ts.rate*100).toFixed(0)}%</span>
+      <strong class="trow-pts">Ø ${ts.roundAvg}</strong>
+    </div>`;
+  }).join("");
+  return h;
 }
 
 // Antwort-Verteilung als gestapelter Balken über alle getippten Teens
@@ -771,21 +794,21 @@ function buildOptionDistribution(breakdown, correctVal, options){
 }
 
 function renderQuizSummary(){
-  const wins = A.teams || {};
-  const teamsSorted = A.allTeams().slice().sort((a,b)=>(wins[b.id]||0)-(wins[a.id]||0));
+  const pts = A.teams || {};
+  const teamsSorted = A.allTeams().slice().sort((a,b)=>(pts[b.id]||0)-(pts[a.id]||0));
   const topPlayers = Object.entries(A.players || {})
     .sort((a,b)=>(b[1].score||0)-(a[1].score||0)).slice(0, 5);
-  const maxWins = Math.max(0, ...teamsSorted.map(t=>wins[t.id]||0));
+  const maxPts = Math.max(0, ...teamsSorted.map(t=>pts[t.id]||0));
 
   let html = `<div class="q-big">🏁 Quiz beendet!</div>`;
-  html += `<h3>Rundensiege der Fan-Teams</h3><div class="team-board">`;
+  html += `<h3>Team-Rangliste (Punkte)</h3><div class="team-board">`;
   html += teamsSorted.map(t=>{
-    const w = wins[t.id]||0;
-    const lead = w>0 && w===maxWins;
+    const w = pts[t.id]||0;
+    const lead = w>0 && w===maxPts;
     return `<div class="team-card ${lead?'team-winning':''}" style="--tcol:${t.color}">
       <div class="nm">${t.emoji} ${t.name}</div>
       <div class="pts" style="color:${t.color}">${w}</div>
-      <div class="pts-sub">Rundensiege</div>
+      <div class="pts-sub">Punkte</div>
     </div>`;
   }).join("");
   html += `</div>`;

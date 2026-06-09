@@ -115,6 +115,16 @@ button:disabled{opacity:.35;cursor:not-allowed}
   border:2px solid color-mix(in srgb,var(--tcol,#d4af37) 70%,#000);font-size:1.6rem;flex:0 0 auto}
 .tav-ph{font-size:1.6rem}
 .host-hint{position:absolute;bottom:16px;font-size:.7rem;opacity:.3;z-index:2}
+/* Header-Chip: zeigt Gruppe + Name */
+.userchip{display:inline-flex;align-items:center;gap:7px;max-width:60vw}
+.userchip .tav{width:26px;height:26px;font-size:.95rem;border-width:1px}
+.userchip .uctxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Team-Auflösungszeile (mobil): Foto+Name | Quote | Ø-Punkte */
+.trow{display:flex;align-items:center;gap:8px}
+.trow .trow-team{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.trow .trow-team .tav{width:30px;height:30px;font-size:1.05rem;border-width:1px}
+.trow .trow-stat{opacity:.7;font-size:.82rem;white-space:nowrap}
+.trow .trow-pts{color:var(--gold);min-width:74px;text-align:right}
 
 /* === TEEN ANSWER BUTTONS === */
 .teen-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -211,6 +221,8 @@ body.beamer-mode .beamer-view .tap-live{font-size:5.5rem;font-weight:900}
 body.beamer-mode .beamer-view .teen-row-big{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:30px}
 body.beamer-mode .beamer-view .teen-row-big .tchip{padding:14px 24px;border-radius:16px;font-size:1.8rem;border:3px solid var(--tcol);background:color-mix(in srgb,var(--tcol) 14%,transparent);display:inline-flex;align-items:center;gap:14px}
 body.beamer-mode .beamer-view .teen-row-big .tchip .tav{width:70px;height:70px;font-size:2.4rem}
+/* Runder Mini-Avatar für Beamer-Labels (Team-Karten & Auflösung) */
+.bav{display:inline-block;width:1.2em;height:1.2em;border-radius:50%;background-size:cover;background-position:center;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -328,7 +340,12 @@ body.beamer-mode .beamer-view .teen-row-big .tchip .tav{width:70px;height:70px;f
 
       <div class="card">
         <h3>🖥️ Beamer</h3>
-        <div class="sub">Am Beamer-Laptop öffnen:</div>
+        <div class="sub">Rangliste auf die Leinwand holen (auch nach dem Quiz):</div>
+        <div class="row">
+          <button id="btnShowScores" class="btn-green">🏆 Rangliste zeigen</button>
+          <button id="btnHideScores" class="btn-ghost">Zurück zum Spiel</button>
+        </div>
+        <div class="sub" style="margin-top:10px">Am Beamer-Laptop öffnen:</div>
         <div id="beamerUrl" style="background:var(--card2);padding:10px;border-radius:8px;font-family:monospace;font-size:.8rem;word-break:break-all;margin:6px 0"></div>
         <button id="btnCopyUrl" class="btn-ghost btn-sm" style="width:auto">URL kopieren</button>
       </div>
