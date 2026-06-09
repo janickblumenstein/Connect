@@ -115,10 +115,11 @@ async function finishTapDuel() {
   });
   if(tie) winner = null;
 
+  const TEAM_BONUS = 800;   // Punkte-Bonus fürs Sieger-Team (Quiz-Skala)
   if (winner) {
     const tRef = ref(db, `rooms/${A.room}/teams/${winner}`);
     const cur = (await get(tRef)).val() || 0;
-    await set(tRef, cur + 1);
+    await set(tRef, cur + TEAM_BONUS);
   }
 
   // Punkte für die schnellsten Finger
@@ -166,7 +167,7 @@ function render(){
     body.innerHTML = `<div class="q-big">⚡ Tap-Duell!</div>
       <div class="sub" style="text-align:center">Gleich geht's los — tippt so schnell ihr könnt!</div>
       <div class="tap-count">${left}</div>
-      <div class="sub" style="text-align:center">Team mit den meisten Taps pro Person gewinnt 1 Rundensieg</div>`;
+      <div class="sub" style="text-align:center">Team mit den meisten Taps pro Person gewinnt einen Punkte-Bonus</div>`;
     A.clearTimers();
     A.timers.push(setInterval(render, 250));
     return;
@@ -269,7 +270,7 @@ function render(){
     if(winner){
       const t = A.teamById(winner) || {};
       html += `<div class="flash gold" style="text-align:center;font-size:1.05rem;margin-top:14px">
-        🏆 Rundensieg für ${t.emoji||''} <b>${t.name||winner}</b>!
+        🏆 +800 Punkte für ${t.emoji||''} <b>${t.name||winner}</b>!
       </div>`;
     } else {
       html += `<div class="flash">Unentschieden – keiner kriegt den Punkt</div>`;

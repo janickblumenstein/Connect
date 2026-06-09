@@ -25,13 +25,22 @@ window.TeensContent = {
   // (Global; im Host-Tab gibt es zusätzlich einen Schalter fürs Umstellen.)
   autoReveal: true,
 
-  // ─── TEAM-WERTUNG ──────────────────────────────────────
-  // Wie wird die Trefferquote eines Fan-Teams berechnet?
-  //  "members" = richtige / ALLE Fans des Teams  → echtes "relativ zur
-  //              Gruppengrösse"; belohnt Beteiligung, verhindert dass 1
-  //              einzelner Tipp (1/1 = 100%) eine grosse Gruppe schlägt.
-  //  "voters"  = richtige / nur die, die geantwortet haben (reine Quote).
-  teamRateDenominator: "members",
+  // ─── TEAM-WERTUNG (Ø-Punkte pro Runde, kumuliert) ──────
+  // Pro Frage erhält jedes Team die DURCHSCHNITTLICHE Punktzahl seiner
+  // abgegebenen Antworten: Summe der (zeitabhängigen) Punkte aller RICHTIGEN
+  // Tipps ÷ Anzahl ABGEGEBENER Antworten des Teams. Beispiel: 40 von 50 Fans
+  // tippen, 30 richtig → deren Zeitpunkte (500–1000) summiert ÷ 40 ≈ 630 Pkt.
+  // Diese Ø-Punkte werden dem Team gutgeschrieben (kein "Rundensieg" mehr) →
+  // alle werden belohnt, nicht nur der/die Erste.
+  //  "answered" = ÷ Anzahl Antwortende (Standard, wie besprochen)
+  //  "members"  = ÷ alle Fans des Teams (auch wer nicht tippt → senkt den Ø)
+  teamAvgDenominator: "answered",
+
+  // ─── BILD PROGRESSIV ENTPIXELN ─────────────────────────
+  // true = Foto startet stark verpixelt/verschwommen und wird über den
+  // Countdown stetig schärfer (früh antworten = schwerer, aber mehr Tempo-Pkt).
+  photoReveal: true,
+  photoBlurMax: 26,   // Stärke der Anfangs-Unschärfe in px
 
   // Login-Button für Gäste, die sich (noch) keinem Teen zuordnen wollen.
   // NEU: Wer das wählt, wird automatisch dem Team mit den AKTUELL wenigsten
