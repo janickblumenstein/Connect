@@ -8,8 +8,30 @@
 window.TeensContent = {
 
   // Titel/Untertitel auf Login & Beamer (✦ wird automatisch ergänzt)
-  eventTitle: "LIFESTYLE Teensabschluss",
-  subtitle:   "Roter Teppich · heute sind die Teens die Stars",
+  eventTitle: "TEENS CONNECT",
+  subtitle:   "LIFESTYLE · Teensabschluss",
+  eventLocation: "Funkenpark",
+  eventDate:     "21. Juni 2026 · 10:00 Uhr",
+
+  // ─── HOST-SCHUTZ ───────────────────────────────────────
+  // PIN, damit nicht jeder per 3×-Logo-Tipp Host werden kann.
+  // (Steht im Quelltext → kein echtes Geheimnis, aber stoppt Spässe.)
+  // Leer ("") = kein PIN nötig.
+  hostPin: "4800",
+
+  // ─── AUTO-AUFLÖSUNG ────────────────────────────────────
+  // true  = nach Ablauf des Countdowns wird automatisch aufgelöst.
+  // false = der Host löst jede Frage von Hand auf ("Jetzt auflösen").
+  // (Global; im Host-Tab gibt es zusätzlich einen Schalter fürs Umstellen.)
+  autoReveal: true,
+
+  // ─── TEAM-WERTUNG ──────────────────────────────────────
+  // Wie wird die Trefferquote eines Fan-Teams berechnet?
+  //  "members" = richtige / ALLE Fans des Teams  → echtes "relativ zur
+  //              Gruppengrösse"; belohnt Beteiligung, verhindert dass 1
+  //              einzelner Tipp (1/1 = 100%) eine grosse Gruppe schlägt.
+  //  "voters"  = richtige / nur die, die geantwortet haben (reine Quote).
+  teamRateDenominator: "members",
 
   // Login-Button für Gäste, die sich (noch) keinem Teen zuordnen wollen.
   // NEU: Wer das wählt, wird automatisch dem Team mit den AKTUELL wenigsten

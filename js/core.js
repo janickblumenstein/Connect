@@ -99,6 +99,11 @@ function initLogin() {
   const c = window.TeensContent || {};
   if(App.$("landingLogo")) App.$("landingLogo").innerText = `✦ ${c.eventTitle || "Teens-Abschluss"} ✦`;
   if(App.$("coupleName"))  App.$("coupleName").innerText  = c.subtitle || "";
+  const meta = App.$("landingMeta");
+  if(meta){
+    const parts = [c.eventLocation, c.eventDate].filter(Boolean).join("  ·  ");
+    meta.innerText = parts;
+  }
 
   let hostClicks = 0;
   App.$("landingLogo").onclick = () => {
@@ -130,7 +135,16 @@ function initLogin() {
   }
 
   App.$("btnJoin").onclick = () => start(false, selectedTeam);
-  App.$("btnHost").onclick = () => start(true, null);
+  App.$("btnHost").onclick = () => {
+    // Host-PIN abfragen (verhindert, dass jeder per Logo-Tipp übernimmt)
+    const pin = (window.TeensContent && window.TeensContent.hostPin) || "";
+    if(pin){
+      const entered = prompt("Host-PIN eingeben:");
+      if(entered === null) return;            // abgebrochen
+      if(entered.trim() !== String(pin)){ alert("Falsche PIN."); return; }
+    }
+    start(true, null);
+  };
 }
 
 async function attemptAutoLogin() {
@@ -241,12 +255,7 @@ function attachListeners() {
 
     App.isHost = (m.host === App.user);
 
-    const badge = App.$("userBadge");
-    if(badge) {
-      const emoji = App.isHost ? "👑" : teamEmoji(App.team);
-      badge.innerHTML = `<span class="badge" style="color:${App.isHost?'var(--gold)':teamColor(App.team)}">${emoji} ${App.userName}</span>` +
-                        (App.isHost ? ' <span class="badge host"> (Host)</span>' : '');
-    }
+    renderBadge();
 
     const hStat = App.$("hostStatus");
     if(hStat) hStat.innerHTML = `Aktueller Host: <b>${m.hostName || '-'}</b>`;
@@ -254,12 +263,31 @@ function attachListeners() {
     const controls = App.$("hostControls");
     if(controls) controls.classList.toggle("hidden", !App.isHost);
     document.querySelectorAll(".hostOnly").forEach(el => el.classList.toggle("hidden", !App.isHost));
+
+    // Beim Host-Werden: nur DER Host abonniert den grossen /answers-Knoten.
+    if(App.isHost && !App._wasHost){
+      App._wasHost = true;
+      if(App.listeners.onBecomeHost) App.listeners.onBecomeHost();
+    }
+
+    if(App.isHost) renderModeration();
   });
 
   onValue(ref(db, `rooms/${App.room}/players`), snap => {
     App.players = snap.val() || {};
+
+    // Selbst-Namens-Sync: hat der Host MEINEN Namen geändert (Moderation),
+    // übernimmt mein Gerät den neuen Namen.
+    const me = App.players[App.user];
+    if(me && me.name && me.name !== App.userName){
+      App.userName = me.name;
+      localStorage.setItem("teens_name", me.name);
+      renderBadge();
+    }
+
     renderTeamBoard();
     renderLeaderboard();
+    renderModeration();
   });
 
   onValue(ref(db, `rooms/${App.room}/teams`), snap => {
@@ -268,10 +296,21 @@ function attachListeners() {
   });
 }
 
+function renderBadge(){
+  const badge = App.$("userBadge");
+  if(!badge) return;
+  const emoji = App.isHost ? "👑" : teamEmoji(App.team);
+  badge.innerHTML = `<span class="badge" style="color:${App.isHost?'var(--gold)':teamColor(App.team)}">${emoji} ${App.userName}</span>` +
+                    (App.isHost ? ' <span class="badge host"> (Host)</span>' : '');
+}
+
 function bindCoreUI(){
   document.querySelectorAll(".tab").forEach(t=>{
     t.onclick = ()=>switchTab(t.dataset.tab);
   });
+
+  const modFilter = App.$("modFilter");
+  if(modFilter) modFilter.oninput = ()=>renderModeration();
 
   const btnReset = App.$("btnResetScores");
   if(btnReset) btnReset.onclick = async()=>{
@@ -345,6 +384,53 @@ function renderLeaderboard(){
       <strong>${d.score||0} Pkt</strong>
     </div>`;
   }).join("") || '<div class="sub">Noch keine Spieler</div>';
+}
+
+// ── NAMENS-MODERATION (nur Host) ────────────────────────────
+// Liste aller Gäste; der Host kann einen unpassenden Namen mit einem Klick
+// auf "Gast N" umbenennen (erscheint dann auch auf der Leinwand neutral).
+function renderModeration(){
+  const box = App.$("modList");
+  if(!box || !App.isHost) return;
+  const filter = (App.$("modFilter")?.value || "").trim().toLowerCase();
+
+  let entries = Object.entries(App.players);
+  if(filter) entries = entries.filter(([uid,d]) => (d.name||uid).toLowerCase().includes(filter));
+  // Neueste zuerst – unpassende Namen tauchen meist beim Beitritt auf.
+  entries.sort((a,b)=>(b[1].joined||0)-(a[1].joined||0));
+
+  const total = Object.keys(App.players).length;
+  const cap = 60;
+  const shown = entries.slice(0, cap);
+
+  const rows = shown.map(([uid,d])=>{
+    const nm = d.name || uid.split('_')[0];
+    const isGuest = /^Gast \d+$/.test(nm);
+    return `<div class="score-row">
+      <span><span class="tm" style="background:${teamColor(d.team)}">${teamEmoji(d.team)}</span>${nm}</span>
+      <button class="btn-sm ${isGuest?'btn-ghost':'btn-red'}" data-rename="${uid}" ${isGuest?'disabled':''}>→ Gast</button>
+    </div>`;
+  }).join("");
+
+  box.innerHTML = `<div class="sub">${total} Gäste${filter?` · gefiltert: ${shown.length}`:(total>cap?` · zeige neueste ${cap}`:'')}</div>` +
+                  (rows || '<div class="sub">Niemand da</div>');
+
+  box.querySelectorAll("[data-rename]").forEach(b=>{
+    b.onclick = ()=>renameToGuest(b.dataset.rename);
+  });
+}
+
+async function renameToGuest(uid){
+  if(!App.isHost) return;
+  const cur = App.players[uid];
+  if(!cur) return;
+  // nächste freie "Gast N"-Nummer suchen
+  let n = 1;
+  const names = Object.values(App.players).map(p=>p.name);
+  while(names.includes("Gast " + n)) n++;
+  const newName = "Gast " + n;
+  await update(ref(db, `rooms/${App.room}/players/${uid}`), { name: newName });
+  toast(`Umbenannt zu ${newName}`);
 }
 
 console.log("✅ core.js loaded (Teens)");
