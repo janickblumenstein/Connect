@@ -1,0 +1,9 @@
+{
+  "name": "connect-loadtest",
+  "private": true,
+  "type": "module",
+  "description": "Last-Test: simuliert viele gleichzeitige Gäste für Teens Connect",
+  "dependencies": {
+    "firebase": "^10.7.1"
+  }
+}

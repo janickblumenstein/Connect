@@ -104,21 +104,50 @@ Alternativ Vercel oder GitHub Pages.
 
 ## 🎮 Ablauf am Abend
 
-**Host:** 3× auf den Titel/Logo tippen → Host-Button → ohne Team starten →
-Host-Tab → Set wählen (z.B. „🎬 Gala-Show") → Frage auflösen → nächste Frage.
+**Host:** 3× auf den Titel/Logo tippen → Host-Button → **PIN** (Standard `4800`)
+→ ohne Team starten → Host-Tab → Set wählen (z.B. „🎬 Gala-Show") → auflösen
+(oder Auto-Auflösung) → nächste Frage. Unpassende Namen im Host-Tab unter
+„🧹 Gäste & Namen" mit einem Klick auf „→ Gast" neutralisieren.
 
-**Beamer-Laptop:** gleiche URL mit `?beamer=1` (Vollbild, QR-Code unten rechts).
+**Beamer-Laptop:** gleiche URL mit `?beamer=1` (Vollbild). Grosser QR im
+Wartezustand, kleiner QR oben rechts während einer Frage.
 
 **Gäste:** QR scannen → (Name optional) → Teen wählen oder „🎲 Noch offen" → mitmachen.
 
-## ⚠️ Hinweise (bei ~160 Gleichzeitig)
+## 🧪 Last-Test (viele Geräte simulieren) → `tools/`
 
-- Fotos klein halten (s.o.) – das ist der grösste Bandbreiten-Faktor.
-- Antworten werden in **einem** Write pro Gast gespeichert (Wert + Reaktionszeit),
-  um die Last tief zu halten.
-- Die Auto-Zuteilung von „Noch offen" balanciert gut, ist aber kein
-  Transaktions-Lock – bei Logins exakt im selben Moment kann eine Gruppe minim
-  grösser werden (durch die relative %-Wertung unkritisch).
+Vor dem Event realistisch testen, ob alles mit z.B. 300 Geräten läuft:
+
+```bash
+cd tools
+npm install
+node loadtest.mjs --players 300        # 300 Sim-Gäste, je eigene Verbindung
+```
+Jeder Sim-Gast wählt zufällig ein Teen, wartet auf jede Frage und antwortet
+nach **zufälliger Reaktionszeit**. Parallel im Browser als Host ein Quiz starten
+und auf dem Beamer (`?beamer=1`) zuschauen. **Strg+C** räumt alle Sim-Gäste auf.
+
+Optionen: `--players 300 --ramp 20 --min 800 --max 18000 --participation 0.92`
+`--teens t1,t2,t3,t4,t5`. Andere DB via ENV `FB_DB_URL=…`.
+
+> Hinweis: Der Test schreibt echte (temporäre) Sim-Gäste in deine DB und löscht
+> sie beim Beenden. Am besten vorab einmal mit `--players 20` testen.
+
+## ⚖️ Skalierung (~160–300 Gleichzeitig)
+
+- 🔴 **Firebase-Plan:** Der kostenlose **Spark-Plan erlaubt nur 100 gleichzeitige
+  Verbindungen** → bei mehr Geräten bricht es ab. Vor dem Event auf **Blaze**
+  (pay-as-you-go) umstellen (für diese Nutzung praktisch gratis, Limit 200'000).
+- **Antworten-Architektur:** Antworten liegen im Knoten `rooms/TEENS/answers`,
+  den **nur der Host** abonniert. Die Gäste-Geräte hören nur auf das kleine
+  `rooms/TEENS/game` (Frage + gedrosselter „x/y"-Zähler). Dadurch bekommen die
+  ~300 Geräte **nicht** den ganzen Antworten-Strom → drastisch weniger Last.
+- Fotos klein halten (s.o.) – sonst der grösste Bandbreiten-Faktor.
+- **Tap-Duell** ist bei >150 Geräten die lastintensivste Komponente
+  (laufende Taps an alle). Fürs Quiz selbst kein Problem; Tap-Duell bei sehr
+  vielen Gästen besser weglassen.
+- Auto-Zuteilung von „Noch offen" balanciert gut, ist aber kein Transaktions-Lock
+  (bei exakt gleichzeitigen Logins minim ungleich – durch %-Wertung unkritisch).
 - `color-mix()` im CSS → moderne Browser nötig (aktuelle Handys: kein Problem).
 
 ## 💡 Ideen für später

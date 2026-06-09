@@ -264,6 +264,12 @@ function attachListeners() {
     if(controls) controls.classList.toggle("hidden", !App.isHost);
     document.querySelectorAll(".hostOnly").forEach(el => el.classList.toggle("hidden", !App.isHost));
 
+    // Beim Host-Werden: nur DER Host abonniert den grossen /answers-Knoten.
+    if(App.isHost && !App._wasHost){
+      App._wasHost = true;
+      if(App.listeners.onBecomeHost) App.listeners.onBecomeHost();
+    }
+
     if(App.isHost) renderModeration();
   });
 

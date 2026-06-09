@@ -35,6 +35,11 @@ function scheduleAutoReveal(){
   }, left + 300);
 }
 
+// Lokale Antwort DIESES Geräts. Gäste lesen NICHT mehr alle fremden Antworten
+// (Skalierung für ~300 Geräte) → der eigene Tipp wird nur lokal gemerkt.
+A.myAnswer = undefined;
+A.state.answers = {};
+
 const prevReady = A.listeners.onReady;
 A.listeners.onReady = ()=>{
   if(prevReady) prevReady();
@@ -49,22 +54,22 @@ A.listeners.onReady = ()=>{
     const newGame = snap.val();
     A.state.game = newGame;
 
-    const isNewQuestionOrPhase = newGame && (!prevGame || prevGame.q !== newGame.q || prevGame.phase !== newGame.phase);
-    // Wert-Vergleich (Antworten sind jetzt {v,t}-Objekte → Referenzvergleich
-    // würde bei JEDER fremden Antwort einen Full-Render auslösen).
-    const myPrevAns = (prevGame && prevGame.answers) ? ansVal(prevGame.answers[A.user]) : undefined;
-    const myNewAns = (newGame && newGame.answers) ? ansVal(newGame.answers[A.user]) : undefined;
-    const iJustAnswered = myPrevAns !== myNewAns;
+    // /game ist jetzt KLEIN (keine Antworten mehr drin) → ändert sich nur bei
+    // neuer Frage/Phase und beim gedrosselten Zähler.
+    const isNew = newGame && (!prevGame
+        || prevGame.q !== newGame.q
+        || prevGame.phase !== newGame.phase
+        || prevGame.quizIdx !== newGame.quizIdx);
 
-    if (isNewQuestionOrPhase) {
-      // Zeitmessung pro Gerät: ab JETZT (Frage erschienen) zählt das Tempo.
-      if (newGame && newGame.phase === "answer") A.questionReceivedAt = Date.now();
+    if (isNew) {
+      if (newGame.phase === "answer") {
+        A.questionReceivedAt = Date.now();   // Tempo-Messung ab jetzt (pro Gerät)
+        A.myAnswer = undefined;              // neue Frage → eigene Antwort zurücksetzen
+      }
       if (!A.isHost && !A.isBeamer) A.switchTab("Game");
       renderGame();
-    } else if (iJustAnswered) {
-      renderGame();
     } else {
-      updateLiveCounter(newGame);
+      updateLiveCounter(newGame);            // nur der "x/y"-Zähler
     }
 
     renderHostStatus();
@@ -76,9 +81,44 @@ A.listeners.onReady = ()=>{
   populateSetDropdown();
 };
 
+// ── NUR der Host abonniert den (grossen) Antworten-Knoten ──────────────
+// Dadurch bekommen die ~300 Gäste-Geräte den Antworten-Strom NIE. Gäste &
+// Beamer lesen nur den kleinen Zähler game/answered.
+A.listeners.onBecomeHost = subscribeHostAnswers;
+let hostAnswersSubscribed = false;
+function subscribeHostAnswers(){
+  if(hostAnswersSubscribed) return;
+  hostAnswersSubscribed = true;
+  onValue(ref(db, `rooms/${A.room}/answers`), snap=>{
+    A.state.answers = snap.val() || {};
+    scheduleAnsweredCountWrite();
+    renderHostStatus();
+  });
+}
+
+// Host schreibt die Antwort-Anzahl gedrosselt (~1/s) nach game/answered.
+let answeredWriteTimer = null;
+function scheduleAnsweredCountWrite(){
+  if(answeredWriteTimer) return;
+  answeredWriteTimer = setTimeout(async ()=>{
+    answeredWriteTimer = null;
+    if(!A.isHost) return;
+    const g = A.state.game;
+    if(!g || g.phase !== "answer") return;
+    const cnt = Object.keys(A.state.answers || {}).length;
+    await update(ref(db, `rooms/${A.room}/game`), { answered: cnt });
+  }, 1000);
+}
+
+// Antwort-Anzahl: Host kennt sie exakt, Gäste/Beamer aus dem kleinen Zähler.
+function answeredCount(g){
+  if(A.isHost) return Object.keys(A.state.answers || {}).length;
+  return (g && g.answered) || 0;
+}
+
 function updateLiveCounter(g) {
   if (!g || g.phase !== "answer") return;
-  const answered = Object.keys(g.answers || {}).length;
+  const answered = answeredCount(g);
   const total = Object.values(A.players).length;
   document.querySelectorAll(".live-counter-text").forEach(el => {
     el.innerText = `${answered} / ${total} haben geantwortet`;
@@ -128,7 +168,7 @@ function renderHostStatus(){
     return;
   }
   if(q && g){
-    const answered = Object.keys(g.answers || {}).length;
+    const answered = answeredCount(g);
     const total = Object.values(A.players).length;
     rs.innerHTML = `📋 ${q.setLabel}<br>
       Frage ${q.current + 1}/${q.total} · ${answered}/${total} geantwortet<br>
@@ -137,7 +177,7 @@ function renderHostStatus(){
     nextBtn.classList.toggle("hidden", !(g.phase === "reveal"));
     nextBtn.innerText = g.phase === "reveal" ? (isLast ? "🏁 Quiz beenden" : "➡️ Nächste Frage") : "";
   } else if(g){
-    const answered = Object.keys(g.answers || {}).length;
+    const answered = answeredCount(g);
     const total = Object.values(A.players).length;
     rs.innerHTML = `Einzelfrage · ${answered}/${total} geantwortet · Phase: <b>${g.phase}</b>`;
     nextBtn.classList.add("hidden");
@@ -212,7 +252,7 @@ async function loadQuestion(idx){
     phase: "answer",
     startedAt: Date.now(),
     endsAt,
-    answers: {},
+    answered: 0,        // kleiner Live-Zähler (Antworten liegen in /answers)
     quizIdx: idx
   };
   if(qData.answer !== undefined) game.answer = qData.answer;
@@ -220,6 +260,9 @@ async function loadQuestion(idx){
   if(qData.unit !== undefined) game.unit = qData.unit;
   if(qData.options) game.options = qData.options;   // Trivia: Antwort-Optionen
 
+  // Antworten der vorigen Frage löschen, DANN neue Frage scharf schalten.
+  A.state.answers = {};
+  await remove(ref(db, `rooms/${A.room}/answers`));
   await set(ref(db, `rooms/${A.room}/game`), game);
   await update(ref(db, `rooms/${A.room}/quiz`), { current: idx });
 }
@@ -245,6 +288,7 @@ async function finishQuiz(){
     quizSummary: true
   });
   await remove(ref(db, `rooms/${A.room}/quiz`));
+  await remove(ref(db, `rooms/${A.room}/answers`));
   toast("Quiz beendet");
 }
 
@@ -253,6 +297,7 @@ async function abortGame(){
   if(!confirm("Laufendes Spiel abbrechen?")) return;
   await remove(ref(db, `rooms/${A.room}/quiz`));
   await remove(ref(db, `rooms/${A.room}/game`));
+  await remove(ref(db, `rooms/${A.room}/answers`));
   await remove(ref(db, `rooms/${A.room}/tapduel`));
   toast("Abgebrochen");
 }
@@ -326,7 +371,7 @@ function renderGame(){
     return;
   }
 
-  const myAns = ansVal((g.answers || {})[A.user]);
+  const myAns = A.myAnswer ? A.myAnswer.v : undefined;   // eigener Tipp (lokal)
   let html = "";
 
   if(q){
@@ -344,7 +389,7 @@ function renderGame(){
         <div class="timer-bar"><div class="fill" id="timerFill"></div></div>`;
     }
 
-    const cnt = Object.keys(g.answers || {}).length;
+    const cnt = answeredCount(g);
     const total = Object.values(A.players).length;
 
     if(A.isHost){
@@ -401,11 +446,21 @@ function buildAnswerInput(g){
   return "";
 }
 
-// Antwort + gemessene Reaktionszeit (ms seit Erscheinen der Frage) in EINEM
-// Write speichern → hält die Last bei ~160 Gästen tief (1 Write pro Antwort).
+// Antwort + Reaktionszeit (ms seit Erscheinen der Frage). Geschrieben wird in
+// den separaten Knoten /answers/{uid} – nur der Host abonniert den. Der eigene
+// Tipp wird lokal gemerkt und sofort angezeigt (kein Read-Back nötig).
 async function sendAnswer(value){
+  if(A.myAnswer) return;            // Doppel-Tipp verhindern
   const elapsed = Math.max(0, Date.now() - (A.questionReceivedAt || Date.now()));
-  await set(ref(db, `rooms/${A.room}/game/answers/${A.user}`), { v: value, t: elapsed });
+  A.myAnswer = { v: value, t: elapsed };
+  renderGame();                      // sofortiges Feedback ("Deine Antwort: …")
+  try {
+    await set(ref(db, `rooms/${A.room}/answers/${A.user}`), A.myAnswer);
+  } catch(e){
+    A.myAnswer = undefined;          // bei Fehler erneut versuchen lassen
+    renderGame();
+    toast("Antwort konnte nicht gesendet werden – nochmal tippen");
+  }
 }
 
 function wireAnswerInputs(g){
@@ -443,7 +498,8 @@ async function revealCurrent() {
   const g = (await get(ref(db, `rooms/${A.room}/game`))).val();
   if (!g || g.phase !== "answer") return;
 
-  const rawAnswers = g.answers || {};
+  // Antworten aus dem separaten Knoten holen (frischester Stand).
+  const rawAnswers = (await get(ref(db, `rooms/${A.room}/answers`))).val() || {};
   const players = A.players || {};
   const teamIds = A.allTeams().map(t => t.id);
   const totalMs = (g.endsAt && g.startedAt) ? (g.endsAt - g.startedAt) : null;
@@ -550,8 +606,12 @@ async function revealCurrent() {
   await update(ref(db, `rooms/${A.room}/game`), {
     phase: "reveal",
     answer: finalCorrectAnswer,
+    answered: Object.keys(answers).length,
     result: { teamStats, breakdown, ranking, roundWinner: winner }
   });
+  // Antworten-Knoten leeren (Verteilung steckt jetzt in result.breakdown).
+  A.state.answers = {};
+  await remove(ref(db, `rooms/${A.room}/answers`));
 }
 
 // Höchster Wert; bei Gleichstand an der Spitze → null (kein Sieger)
@@ -574,11 +634,11 @@ function buildRevealView(g){
   const r = g.result || {};
   let html = "";
 
-  const rawMy = (g.answers || {})[A.user];
-  const myAns = ansVal(rawMy);
+  const rawMy = A.myAnswer;                       // eigener Tipp (lokal gemerkt)
+  const myAns = rawMy ? rawMy.v : undefined;
   const totalMs = (g.endsAt && g.startedAt) ? (g.endsAt - g.startedAt) : null;
   const myPts = (myAns !== undefined && g.answer != null && myAns === g.answer)
-    ? speedPoints(ansTime(rawMy), totalMs) : 0;
+    ? speedPoints(rawMy ? rawMy.t : null, totalMs) : 0;
 
   if (!A.isHost && !A.isBeamer) {
     if (g.type === "estimate") {

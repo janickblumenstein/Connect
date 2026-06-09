@@ -118,7 +118,7 @@ function renderQuizDone(view){
 
 function renderActiveGame(view, g, q){
   const total = Object.keys(A.players).length;
-  const cnt = Object.keys(g.answers || {}).length;
+  const cnt = g.answered || 0;   // kleiner Live-Zähler (Antworten liegen in /answers)
 
   let html = "";
   if(q){
