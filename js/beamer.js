@@ -12,18 +12,20 @@ if(A.isBeamer){
   render();
 }
 
+// Während einer laufenden Frage: QR oben rechts (nicht unten – damit Personen
+// auf der Bühne ihn nicht verdecken), gut sichtbar.
 function injectQrOverlay(){
   const overlay = document.createElement("div");
   overlay.id = "beamerQrOverlay";
   overlay.innerHTML = `
-    <div style="background:#fff;padding:7px;border-radius:10px;display:inline-block;box-shadow:0 2px 12px rgba(0,0,0,.5)">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(GAME_URL)}" width="120" height="120" alt="QR">
+    <div style="background:#fff;padding:10px;border-radius:12px;display:inline-block;box-shadow:0 2px 16px rgba(0,0,0,.6)">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&qzone=1&data=${encodeURIComponent(GAME_URL)}" width="200" height="200" alt="QR">
     </div>
-    <div style="font-family:monospace;font-size:.75rem;color:var(--gold);margin-top:5px;text-align:center;opacity:.8">
-      Scan mich & mach mit
+    <div style="font-size:1rem;font-weight:bold;color:var(--gold);margin-top:6px;text-align:center">
+      📲 Scan & mach mit
     </div>`;
   Object.assign(overlay.style, {
-    position: "fixed", bottom: "24px", right: "28px", zIndex: "999",
+    position: "fixed", top: "24px", right: "28px", zIndex: "999",
     textAlign: "center", pointerEvents: "none"
   });
   document.body.appendChild(overlay);
@@ -41,6 +43,12 @@ function render(){
   const view = document.getElementById("beamerView");
   if(!view) return;
   const g = A.state.game, q = A.state.quiz, tap = A.state.tapduel;
+
+  // Eck-QR nur während laufender Frage zeigen; bei Idle/Ende gibt es den
+  // grossen zentralen QR, beim Tap-Duell stört er nicht.
+  const ov = document.getElementById("beamerQrOverlay");
+  const showCornerQr = !!g && g.type !== "_quizdone" && !tap;
+  if(ov) ov.style.display = showCornerQr ? "" : "none";
 
   if(tap){ renderTapDuel(view, tap); return; }
   if(!g){ stopBeamerTimer(); renderIdle(view); return; }
@@ -66,11 +74,18 @@ function teamCardsBig(){
 function renderIdle(view){
   const c = window.TeensContent || {};
   const guestCount = Object.keys(A.players||{}).length;
+  const meta = [c.eventLocation, c.eventDate].filter(Boolean).join("  ·  ");
+  // Im Wartezustand: GROSSER QR-Code mittig – aus 30m gut scannbar.
   view.innerHTML = `
     <h1>✦ ${c.eventTitle || "Teens-Abschluss"} ✦</h1>
     <div class="sub-big">${c.subtitle || ""}</div>
-    ${teamCardsBig()}
-    <div class="sub-big" style="margin-top:40px;opacity:.5">${guestCount} Gäste bereits verbunden</div>`;
+    ${meta ? `<div class="sub-big" style="color:var(--gold);margin-top:6px">${meta}</div>` : ""}
+    <div style="background:#fff;padding:24px;border-radius:24px;display:inline-block;margin:34px auto 14px;box-shadow:0 6px 30px rgba(0,0,0,.6)">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&qzone=1&data=${encodeURIComponent(GAME_URL)}"
+           style="width:min(46vh,440px);height:min(46vh,440px);display:block" alt="QR">
+    </div>
+    <div style="font-size:2rem;font-weight:bold;color:var(--gold)">📲 QR scannen & mitmachen</div>
+    <div class="sub-big" style="margin-top:18px;opacity:.6">${guestCount} Gäste bereits verbunden</div>`;
 }
 
 function renderQuizDone(view){

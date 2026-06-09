@@ -20,6 +20,21 @@ function ansTime(raw){ return (raw && typeof raw === "object") ? raw.t : null; }
 // Text für ein HTML-Attribut absichern (Trivia-Optionen können Sonderzeichen haben).
 function escAttr(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
+// Auto-Auflösung nach Countdown (global, Standard aus content.js).
+A.autoReveal = (window.TeensContent && window.TeensContent.autoReveal) !== false;
+let hostRevealTimer = null;
+function scheduleAutoReveal(){
+  if(hostRevealTimer){ clearTimeout(hostRevealTimer); hostRevealTimer = null; }
+  if(!A.isHost || !A.autoReveal) return;
+  const g = A.state.game;
+  if(!g || g.phase !== "answer" || !g.endsAt) return;
+  const left = Math.max(0, g.endsAt - Date.now());
+  // kleiner Puffer (300ms), damit die letzten Antworten noch ankommen
+  hostRevealTimer = setTimeout(()=>{
+    if(A.state.game && A.state.game.phase === "answer") revealCurrent();
+  }, left + 300);
+}
+
 const prevReady = A.listeners.onReady;
 A.listeners.onReady = ()=>{
   if(prevReady) prevReady();
@@ -54,6 +69,7 @@ A.listeners.onReady = ()=>{
 
     renderHostStatus();
     maybeStartClientTimer();
+    scheduleAutoReveal();
   });
 
   bindHostUI();
@@ -84,6 +100,12 @@ function bindHostUI(){
   $("btnNextQ").onclick = nextQuestion;
   $("btnAddTime").onclick = ()=>addTimerSeconds(10);
   $("btnEndGame").onclick = abortGame;
+
+  const ar = $("autoRevealToggle");
+  if(ar){
+    ar.checked = A.autoReveal;
+    ar.onchange = ()=>{ A.autoReveal = ar.checked; scheduleAutoReveal(); toast(A.autoReveal ? "Auto-Auflösung an" : "Auto-Auflösung aus"); };
+  }
 }
 
 function renderHostStatus(){
@@ -426,9 +448,13 @@ async function revealCurrent() {
   const teamIds = A.allTeams().map(t => t.id);
   const totalMs = (g.endsAt && g.startedAt) ? (g.endsAt - g.startedAt) : null;
 
-  // teamStats: für jedes Team correct/total/rate
+  // teamStats: für jedes Team correct/answered/total/rate
   const teamStats = {};
-  teamIds.forEach(id => teamStats[id] = { correct: 0, total: 0, rate: 0 });
+  teamIds.forEach(id => teamStats[id] = { correct: 0, answered: 0, total: 0, rate: 0 });
+  // Mitgliederzahl pro Team (für "members"-Modus = relativ zur Gruppengrösse)
+  const rateMode = (window.TeensContent && window.TeensContent.teamRateDenominator) || "members";
+  const memberCount = {}; teamIds.forEach(id => memberCount[id] = 0);
+  Object.values(players).forEach(p => { if (p.team && memberCount[p.team] !== undefined) memberCount[p.team]++; });
   const breakdown = {};   // Antwort-Verteilung (key = getippter Wert)
   const ranking = [];     // nur für estimate
 
@@ -445,7 +471,7 @@ async function revealCurrent() {
     const p = players[uid];
     if (!p) continue;
     breakdown[a.v] = (breakdown[a.v] || 0) + 1;
-    if (p.team && teamStats[p.team]) teamStats[p.team].total++;
+    if (p.team && teamStats[p.team]) teamStats[p.team].answered++;
     if (g.type === "estimate") {
       const diff = Math.abs(a.v - g.answer);
       ranking.push({ uid, p: p.name || uid.split('_')[0], team: p.team, v: a.v, diff });
@@ -494,10 +520,12 @@ async function revealCurrent() {
         }
       }
     }
-    // TEAM: Rundensieg = höchste TREFFERQUOTE (relativ, Teamgrösse egal)
+    // TEAM: Rundensieg = höchste TREFFERQUOTE (relativ zur Gruppengrösse).
+    // Nenner je nach Konfig: alle Fans ("members") oder nur Antwortende ("voters").
     const rates = {};
     teamIds.forEach(id => {
       const ts = teamStats[id];
+      ts.total = rateMode === "members" ? memberCount[id] : ts.answered;
       ts.rate = ts.total > 0 ? ts.correct / ts.total : 0;
       if (ts.total > 0) rates[id] = ts.rate;
     });
