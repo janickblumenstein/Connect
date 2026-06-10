@@ -39,14 +39,14 @@ window.TeensContent = {
   // ─── BILD PROGRESSIV ENTPIXELN ─────────────────────────
   // true = Foto startet stark verpixelt/verschwommen und wird über den
   // Countdown stetig schärfer (früh antworten = schwerer, aber mehr Tempo-Pkt).
-  photoReveal: true,
-  photoBlurMax: 26,   // Stärke der Anfangs-Unschärfe in px
+  photoReveal: false,
+  photoBlurMax: 10,   // Stärke der Anfangs-Unschärfe in px
 
   // Login-Button für Gäste, die sich (noch) keinem Teen zuordnen wollen.
   // NEU: Wer das wählt, wird automatisch dem Team mit den AKTUELL wenigsten
   // Fans zugeteilt → die ~160 Gäste verteilen sich gleichmässig auf die 5
   // Teens (wichtig für die faire, relative Team-Wertung).
-  neutralLabel: "🎲 Noch offen – überrasch mich",
+  neutralLabel: "🎲 Noch offen – automatisch zuteilen",
 
   // Farb-Palette für Antwort-Optionen bei den Bibel-Fragen (zyklisch)
   optionColors: ["#d4af37", "#e85a5a", "#6ba3c7", "#7ed987", "#b98ce8", "#e8a555"],
@@ -176,7 +176,7 @@ window.TeensContent = {
   //   { trivia:"all", guess:"all", poll:"all" } = alles nacheinander
   // ═══════════════════════════════════════════════════════
   sets: [
-    { id: "gala",      label: "🎬 Gala-Show – alles (19 Fragen)", pick: { trivia: "all", guess: "all", poll: "all" }, timer: 25 },
+    { id: "gala",      label: "🎬 Quiz", pick: { trivia: "all", guess: "all", poll: "all" }, timer: 25 },
     { id: "bibel",     label: "📖 Bibel-Figuren raten (9)",       pick: { trivia: "all" },   timer: 25 },
     { id: "teens",     label: "⭐ Über die Teens (5)",            pick: { guess: "all" },    timer: 25 },
     { id: "schwarm",   label: "🔮 Schwarm-Fragen (5)",           pick: { poll: "all" },     timer: 20 },
