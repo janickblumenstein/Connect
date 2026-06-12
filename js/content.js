@@ -67,9 +67,9 @@ window.TeensContent = {
 
     { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "https://images.pexels.com/photos/32887406/pexels-photo-32887406.jpeg" },
     { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "https://images.pexels.com/photos/8147397/pexels-photo-8147397.jpeg" },
-    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "https://images.pexels.com/photos/452557/pexels-photo-452557.jpeg" },
+    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi.jpeg?alt=media&token=f8ff2b09-e727-43b3-a580-89f1a62c5488" },
     { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", photo: "https://images.pexels.com/photos/3988848/pexels-photo-3988848.jpeg" },
-    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "https://images.pexels.com/photos/13231911/pexels-photo-13231911.jpeg" }
+    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina.jpeg?alt=media&token=03730952-690b-4674-b714-b2db6f4894f1" }
   ],
 
   // ═══════════════════════════════════════════════════════
