@@ -173,21 +173,9 @@ function renderActiveGame(view, g, q){
   const dMs = beamerQuestionDelayMs(g);
   const stillHidden = dMs > 0 && (Date.now() - g.startedAt) < dMs;
 
-  let html = "";
-  if(q){
-    html += `<div class="qprog">${q.setLabel} · Frage ${q.current + 1} / ${q.total}</div>`;
-  } else {
-    html += `<div class="qprog">${typeLabel(g.type)}</div>`;
-  }
-  if(stillHidden){
-    const left = Math.ceil((dMs - (Date.now() - g.startedAt)) / 1000);
-    html += `<div class="question" style="opacity:.85">🔍 Schau genau hin … <b>${left}s</b></div>`;
-  } else {
-    html += `<div class="question">${g.q}</div>`;
-  }
-
-  // Beamer nutzt das GROSSE Bild (photobeamer), Fallback auf photoUrl.
+  // ── Foto (linke Spalte bei Bildfragen) · Beamer nutzt photobeamer ──
   const bImg = g.photobeamer || g.photoUrl;
+  let photoHtml = "";
   if(bImg){
     const reveal = (window.TeensContent && window.TeensContent.photoReveal) === true;
     const maxB = (window.TeensContent && window.TeensContent.photoBlurMax) || 26;
@@ -196,38 +184,51 @@ function renderActiveGame(view, g, q){
       const f = Math.max(0, Math.min(1, (g.endsAt - Date.now()) / (g.endsAt - g.startedAt)));
       blur = Math.round(maxB * f * 1.4);
     }
-    html += `<div class="photo-box" style="margin:20px auto;max-width:500px;aspect-ratio:1"><img src="${bImg}" style="filter:blur(${blur}px)" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;ph&quot;>📷</div>'"></div>`;
+    photoHtml = `<div class="photo-box"><img src="${bImg}" style="filter:blur(${blur}px)" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;ph&quot;>📷</div>'"></div>`;
+  }
+
+  // ── Infos (rechte Spalte, bzw. ganze Breite ohne Bild) ──
+  let info = q
+    ? `<div class="qprog">${q.setLabel} · Frage ${q.current + 1} / ${q.total}</div>`
+    : `<div class="qprog">${typeLabel(g.type)}</div>`;
+  if(stillHidden){
+    const left = Math.ceil((dMs - (Date.now() - g.startedAt)) / 1000);
+    info += `<div class="question" style="opacity:.85">🔍 Schau genau hin … <b>${left}s</b></div>`;
+  } else {
+    info += `<div class="question">${g.q}</div>`;
   }
 
   if(g.phase === "answer"){
     if(g.endsAt){
       const left = Math.max(0, Math.ceil((g.endsAt - Date.now()) / 1000));
       const cls = left <= 5 ? "crit" : left <= 10 ? "warn" : "";
-      html += `<div class="big-timer ${cls}">${left}s</div>`;
+      info += `<div class="big-timer ${cls}">${left}s</div>`;
       startBeamerTimer();
     }
-    html += `<div class="big-counter">${cnt} / ${total}</div>`;
-    html += `<div class="sub-big">haben geantwortet</div>`;
+    info += `<div class="big-counter">${cnt} / ${total}</div>`;
+    info += `<div class="sub-big">haben geantwortet</div>`;
     if(g.type === "guess" || g.type === "poll"){
-      // Die wählbaren Teens als Hinweis gross zeigen (mit Foto)
-      html += `<div class="teen-row-big">` + A.teensOnly().map(t=>
+      info += `<div class="teen-row-big">` + A.teensOnly().map(t=>
         `<div class="tchip" style="--tcol:${t.color}">${bigTeenAvatar(t)}<span>${t.name}</span></div>`
       ).join("") + `</div>`;
     } else if(g.type === "trivia"){
       const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
-      html += `<div class="teen-row-big">` + (g.options || []).map((o,i)=>
+      info += `<div class="teen-row-big">` + (g.options || []).map((o,i)=>
         `<div class="tchip" style="--tcol:${cols[i % cols.length]}"><span>${String.fromCharCode(65+i)}. ${o}</span></div>`
       ).join("") + `</div>`;
     } else if(g.type === "estimate" && g.unit){
-      html += `<div class="sub-big" style="margin-top:20px;opacity:.5">Tipp in ${g.unit}</div>`;
+      info += `<div class="sub-big" style="margin-top:20px;opacity:.5">Tipp in ${g.unit}</div>`;
     }
   }
   else if(g.phase === "reveal"){
     stopBeamerTimer();
-    html += renderRevealBeamer(g);
+    info += renderRevealBeamer(g);
   }
 
-  view.innerHTML = html;
+  // Mit Bild → zwei Spalten (passt auf einen Screen); ohne Bild → wie bisher.
+  view.innerHTML = bImg
+    ? `<div class="bg2"><div class="bg2-photo">${photoHtml}</div><div class="bg2-info">${info}</div></div>`
+    : info;
 }
 
 function renderRevealBeamer(g){
