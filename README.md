@@ -37,8 +37,14 @@ tippen am Handy mit.
   Schwarm-Fragen zählt „mit der Mehrheit getippt" als richtig.
 - **Tap-Duell** als Zwischenspiel: schnellstes Fan-Team bekommt **+800 Team-Punkte**,
   die schnellsten Finger 1000/600/300 Einzelpunkte.
-- **Bild-Freigabe:** Foto-Fragen starten verpixelt und werden über den Countdown
-  scharf (`photoReveal`) – früh tippen ist schwerer, aber bringt mehr Tempo-Punkte.
+- **Verzögerte Frage:** Bei Bildfragen erscheint das Foto sofort, der Fragetext
+  (Hinweis) aber erst nach `questionDelaySec` Sekunden (Standard 5) – früh tippen
+  ist schwerer, bringt aber mehr Tempo-Punkte. Pro Frage via `delay:` überschreibbar.
+  (Alternative `photoReveal` verpixelt das Bild stattdessen – standardmässig aus.)
+- **Bild-Split (Datenvolumen):** Beamer lädt das grosse Bild, die ~300 Handys das
+  kleine. Pro Trivia-Frage `photoUrl` (klein/Handy) + `photobeamer` (gross/Beamer);
+  bei den Teens analog `photo` (klein) + `photobeamer` (gross). Beamer fällt auf das
+  kleine zurück, falls kein grosses gesetzt ist.
 
 ## 📁 Projekt-Struktur
 
