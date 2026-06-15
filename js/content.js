@@ -65,8 +65,8 @@ window.TeensContent = {
   // (Pseudo-Namen – am Event durch die echten Teens ersetzen)
   teens: [
 
-    { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "https://images.pexels.com/photos/32887406/pexels-photo-32887406.jpeg" },
-    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "https://images.pexels.com/photos/8147397/pexels-photo-8147397.jpeg" },
+    { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Jeditha.jpeg?alt=media&token=a8ec1b54-3d68-403d-8cfc-7589c9be0ad7" },
+    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Linda.jpeg?alt=media&token=ed162709-849c-4a3f-8400-afaca51539a6" },
     { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi.jpeg?alt=media&token=f8ff2b09-e727-43b3-a580-89f1a62c5488" },
     { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", photo: "https://images.pexels.com/photos/3988848/pexels-photo-3988848.jpeg" },
     { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina.jpeg?alt=media&token=03730952-690b-4674-b714-b2db6f4894f1" }
@@ -90,42 +90,105 @@ window.TeensContent = {
     // 👉 Text & Antworten gerne anpassen – das sind nur Beispiele.
     // ─────────────────────────────────────────────────────
     trivia: [
-      { q: "Wer steht hier mit dem Stab im Wasser?",
-        photoUrl: "https://cdn.pixabay.com/photo/2024/05/27/13/03/moses-leads-out-8791210_1280.png",
-        options: ["Mose", "Noah", "David", "Elia", "Josua"], answer: "Mose" },
 
-      { q: "Welche Figur baute hier das grosse Boot?",
-        photoUrl: "https://images.pexels.com/photos/31918251/pexels-photo-31918251.jpeg",
-        options: ["Noah", "Abraham", "Jona", "Salomo", "Mose"], answer: "Noah" },
-
-      { q: "Wer besiegt hier den Riesen mit einer Schleuder?",
-        photoUrl: "https://images.pexels.com/photos/30610666/pexels-photo-30610666.jpeg",
-        options: ["David", "Simson", "Gideon", "Saul", "Josua"], answer: "David" },
-
-      { q: "Wer steckt hier im Bauch des grossen Fisches?",
-        photoUrl: "https://images.pexels.com/photos/13028012/pexels-photo-13028012.jpeg",
-        options: ["Jona", "Petrus", "Paulus", "Daniel", "Noah"], answer: "Jona" },
-
-      { q: "Wer sitzt hier ruhig zwischen den Löwen?",
-        photoUrl: "https://images.pexels.com/photos/11630769/pexels-photo-11630769.jpeg",
-        options: ["Daniel", "David", "Josef", "Elia", "Mose"], answer: "Daniel" },
-
-      { q: "Welcher Starke hat hier die langen Haare?",
-        photoUrl: "https://images.pexels.com/photos/12383166/pexels-photo-12383166.jpeg",
-        options: ["Simson", "Goliath", "Esau", "Saul", "David"], answer: "Simson" },
-
-      { q: "Wer hält hier das Jesuskind im Arm?",
-        photoUrl: "https://images.pexels.com/photos/36588118/pexels-photo-36588118.jpeg",
-        options: ["Maria", "Marta", "Ruth", "Ester", "Hanna"], answer: "Maria" },
-
-      { q: "Wer tauft hier am Jordan?",
-        photoUrl: "https://images.pexels.com/photos/10619928/pexels-photo-10619928.jpeg",
-        options: ["Johannes der Täufer", "Petrus", "Paulus", "Andreas", "Elia"],
-        answer: "Johannes der Täufer" },
-
-      { q: "Wer hält hier die Schlüssel und stand im Boot?",
-        photoUrl: "https://images.pexels.com/photos/8892874/pexels-photo-8892874.jpeg",
-        options: ["Petrus", "Johannes", "Thomas", "Judas", "Matthäus"], answer: "Petrus" }
+  {
+    q: "Wer steht hier mit dem Stab am Wasser?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Noah", "Mose", "David", "Elia", "Josua"],
+    answer: "Mose"
+  },
+  {
+    q: "Wer ist dieser treue Begleiter und Ermutiger auf der Missionsreise?",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Barnabas%20(Phone).jpg?alt=media&token=f15f37b9-6afb-4e74-b2d5-8cf06f7e8cf9",
+    photobeamer:"https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Barnabas%20(Large).jpg?alt=media&token=039003a7-b43b-4604-b772-32bc4eb20a5c",
+    options: ["Petrus", "Paulus", "Barnabas", "Silas", "Timotheus"],
+    answer: "Barnabas"
+  },
+  {
+    q: "Wer ist diese mutige junge Frau mit dem besonderen Kind?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Maria", "Martha", "Elisabeth", "Sara", "Rahel"],
+    answer: "Maria"
+  },
+  {
+    q: "Wer wurde hier durch ein helles Licht vom Verfolger zum Nachfolger?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Petrus", "Johannes", "Judas", "Saulus", "Stephanus"],
+    answer: "Saulus"
+  },
+  {
+    q: "Welche mutige Königin tritt hier für ihr Volk ein?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Ruth", "Hanna", "Esther", "Naomi", "Mirjam"],
+    answer: "Esther"
+  },
+  {
+    q: "Wer ist dieser junge Hirte, der später König wurde?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Saul", "Salomo", "Goliath", "Samuel", "David"],
+    answer: "David"
+  },
+  {
+    q: "Wer betet hier so innig im Tempel um ein Kind?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Hanna", "Peninna", "Debora", "Michal", "Lea"],
+    answer: "Hanna"
+  },
+  {
+    q: "Welche treue Schwiegertochter sammelt hier Ähren auf dem Feld?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Esther", "Rahel", "Rebekka", "Ruth", "Naomi"],
+    answer: "Ruth"
+  },
+  {
+    q: "Welcher Jünger steigt hier mutig aus dem Boot?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Andreas", "Jakobus", "Petrus", "Johannes", "Thomas"],
+    answer: "Petrus"
+  },
+  {
+    q: "Wer lacht hier ungläubig über die Zusage, im hohen Alter noch ein Kind zu bekommen?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Hagar", "Sara", "Rebekka", "Lea", "Rahel"],
+    answer: "Sara"
+  },
+  {
+    q: "Welcher Zöllner wurde hier von Jesus in die Nachfolge gerufen?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Lukas", "Markus", "Matthäus", "Johannes", "Judas"],
+    answer: "Matthäus"
+  },
+  {
+    q: "Welcher weinende Prophet warnt hier sein Volk?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Jesaja", "Jeremia", "Hesekiel", "Daniel", "Elia"],
+    answer: "Jeremia"
+  },
+  {
+    q: "Wer baut hier die große Arche, um seine Familie und die Tiere zu retten?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Abraham", "Mose", "Noah", "Jona", "Lot"],
+    answer: "Noah"
+  },
+  {
+    q: "Welcher Jünger zweifelt hier zuerst und möchte die Wunden Jesu berühren?",
+    photoUrl: "BILD_URL_HIER",
+    photobeamer: "BILD_URL_HIER",
+    options: ["Petrus", "Thomas", "Judas", "Andreas", "Philippus"],
+    answer: "Thomas"
+  }
     ],
 
     // ─────────────────────────────────────────────────────
@@ -153,12 +216,19 @@ window.TeensContent = {
     // 👉 Lustig & pointiert, aber nie gemein. Gerne anpassen.
     // ─────────────────────────────────────────────────────
     poll: [
-      { q: "Wer von den fünf kocht in 5 Jahren am wenigsten selbst?" },
-      { q: "Wer verschläft am ehesten den Gottesdienst-Wecker?" },
-      { q: "Wer startet als Erstes einen viralen Trend?" },
-      { q: "Wer gibt am meisten Geld für Kaffee & Bubble Tea aus?" },
-      { q: "Wer wird in 10 Jahren am weitesten weg von zuhause wohnen?" }
-    ],
+    { q: "Wer von den fünf kocht in 5 Jahren am wenigsten selbst?" },
+    { q: "Wer verschläft am ehesten den Gottesdienst-Wecker?" },
+    { q: "Wer startet als Erstes einen viralen Trend?" },
+    { q: "Wer gibt am meisten Geld für Kaffee & Bubble Tea aus?" },
+    { q: "Wer wird in 10 Jahren am weitesten weg von zuhause wohnen?" },
+    { q: "Wer schläft im Durchschnitt am wenigsten?" },
+    { q: "Wem würde auf dem roten Teppich etwas Peinliches passieren?" },
+    { q: "Wer würde an eine Pingpong-Weltmeisterschaft gehen?" },
+    { q: "Wer würde auswandern?" },
+    { q: "Wer fährt ein Elektroauto?" },
+    { q: "Wer wird am meisten Kinder haben?" },
+    { q: "Wer wird der Nachfolger von Matthias?" }
+  ],
 
     // ─────────────────────────────────────────────────────
     // SCHÄTZFRAGEN (optional) – answer = Zahl
@@ -176,7 +246,8 @@ window.TeensContent = {
   //   { trivia:"all", guess:"all", poll:"all" } = alles nacheinander
   // ═══════════════════════════════════════════════════════
   sets: [
-    { id: "gala",      label: "🎬 Quiz", pick: { trivia: "all", guess: "all", poll: "all" }, timer: 25 },
+    { id: "gala",      label: "🎬 Quiz", pick: { trivia: "all", //guess: "all", 
+                                               poll: "all" }, timer: 20 },
     { id: "bibel",     label: "📖 Bibel-Figuren raten (9)",       pick: { trivia: "all" },   timer: 25 },
     { id: "teens",     label: "⭐ Über die Teens (5)",            pick: { guess: "all" },    timer: 25 },
     { id: "schwarm",   label: "🔮 Schwarm-Fragen (5)",           pick: { poll: "all" },     timer: 20 },
