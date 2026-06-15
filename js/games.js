@@ -20,13 +20,25 @@ function ansTime(raw){ return (raw && typeof raw === "object") ? raw.t : null; }
 // Text für ein HTML-Attribut absichern (Trivia-Optionen können Sonderzeichen haben).
 function escAttr(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-// Progressive Bild-Freigabe: Foto startet unscharf und wird über den Timer
-// stetig klarer. blur(px) ∝ verbleibender Zeit.
-function photoRevealOn(){ return (window.TeensContent && window.TeensContent.photoReveal) !== false; }
+// Progressive Bild-Freigabe (Alternative, standardmässig aus).
+function photoRevealOn(){ return (window.TeensContent && window.TeensContent.photoReveal) === true; }
 function photoBlurPx(leftMs, totalMs){
   const max = (window.TeensContent && window.TeensContent.photoBlurMax) || 26;
   if(!(totalMs > 0)) return 0;
   return Math.round(max * Math.max(0, Math.min(1, leftMs / totalMs)));
+}
+
+// Verzögerte Frage: Bei Bildfragen erscheint der Fragetext erst nach X Sek.
+function hasPhoto(g){ return !!(g && (g.photoUrl || g.photobeamer)); }
+function questionDelayMs(g){
+  if(!g || g.phase !== "answer" || !hasPhoto(g)) return 0;
+  const sec = (g.qdelay != null) ? g.qdelay : (window.TeensContent && window.TeensContent.questionDelaySec) || 0;
+  return sec > 0 ? sec * 1000 : 0;
+}
+// noch im Verzögerungsfenster? (gemessen ab Frage-Start, beamer-/gerätesync)
+function questionStillHidden(g){
+  const d = questionDelayMs(g);
+  return d > 0 && (Date.now() - g.startedAt) < d;
 }
 
 // Auto-Auflösung nach Countdown (global, Standard aus content.js).
@@ -271,9 +283,11 @@ async function loadQuestion(idx){
     quizIdx: idx
   };
   if(qData.answer !== undefined) game.answer = qData.answer;
-  if(qData.photoUrl) game.photoUrl = qData.photoUrl;
+  if(qData.photoUrl) game.photoUrl = qData.photoUrl;        // klein → Handy
+  if(qData.photobeamer) game.photobeamer = qData.photobeamer; // gross → Beamer
   if(qData.unit !== undefined) game.unit = qData.unit;
   if(qData.options) game.options = qData.options;   // Trivia: Antwort-Optionen
+  if(qData.delay !== undefined) game.qdelay = qData.delay;  // Frage-Verzögerung (Sek), pro Frage
 
   // Antworten der vorigen Frage löschen, DANN neue Frage scharf schalten.
   A.state.answers = {};
@@ -336,6 +350,7 @@ function maybeStartClientTimer(){
   const tick = ()=>{
     const left = Math.max(0, g.endsAt - Date.now());
     updateTimerDisplay(left, g.endsAt - g.startedAt);
+    maybeRevealQuestion(g);
     if(left <= 0){
       A.clearTimers();
       const num = document.getElementById("timerNum");
@@ -344,6 +359,21 @@ function maybeStartClientTimer(){
   };
   tick();
   A.timers.push(setInterval(tick, 250));
+}
+
+// Fragetext nach Ablauf der Verzögerung einblenden (bzw. Countdown anzeigen).
+function maybeRevealQuestion(g){
+  const d = questionDelayMs(g);
+  if(!d) return;
+  const el = document.getElementById("qtext");
+  if(!el) return;
+  const elapsed = Date.now() - g.startedAt;
+  if(elapsed >= d){
+    if(el.classList.contains("q-pending")){ el.className = "q-big"; el.textContent = g.q; }
+  } else {
+    const cd = document.getElementById("qcountdown");
+    if(cd) cd.textContent = Math.ceil((d - elapsed) / 1000) + "s";
+  }
 }
 
 function updateTimerDisplay(leftMs, totalMs){
@@ -394,7 +424,12 @@ function renderGame(){
   if(q){
     html += `<div class="q-num">Frage ${q.current + 1} / ${q.total}</div>`;
   }
-  html += `<div class="q-big">${g.q}</div>`;
+  // Bildfragen: Foto sofort, Fragetext (Hinweis) erst nach der Verzögerung.
+  if(questionStillHidden(g)){
+    html += `<div class="q-big q-pending" id="qtext">🔍 Schau genau hin … <span id="qcountdown"></span></div>`;
+  } else {
+    html += `<div class="q-big" id="qtext">${g.q}</div>`;
+  }
 
   if(g.photoUrl){
     const blur = (g.phase === "answer" && photoRevealOn() && g.endsAt)

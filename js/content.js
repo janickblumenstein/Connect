@@ -36,11 +36,16 @@ window.TeensContent = {
   //  "members"  = ÷ alle Fans des Teams (auch wer nicht tippt → senkt den Ø)
   teamAvgDenominator: "answered",
 
-  // ─── BILD PROGRESSIV ENTPIXELN ─────────────────────────
-  // true = Foto startet stark verpixelt/verschwommen und wird über den
-  // Countdown stetig schärfer (früh antworten = schwerer, aber mehr Tempo-Pkt).
+  // ─── BILD PROGRESSIV ENTPIXELN (Alternative, standardmässig aus) ──
+  // true = Foto startet verschwommen und wird über den Countdown schärfer.
   photoReveal: false,
   photoBlurMax: 10,   // Stärke der Anfangs-Unschärfe in px
+
+  // ─── FRAGE VERZÖGERT EINBLENDEN (nur Bildfragen) ───────
+  // Bei Fragen MIT Bild erscheint das Foto sofort, der Fragetext (der Hinweis)
+  // aber erst nach X Sekunden → Spannung, ohne das Bild zu verpixeln.
+  // 0 = aus. Pro Frage mit  delay: <Sek>  überschreibbar.
+  questionDelaySec: 5,
 
   // Login-Button für Gäste, die sich (noch) keinem Teen zuordnen wollen.
   // NEU: Wer das wählt, wird automatisch dem Team mit den AKTUELL wenigsten
@@ -63,13 +68,15 @@ window.TeensContent = {
   //   (Leer lassen = es wird das emoji als Platzhalter angezeigt.)
   // ═══════════════════════════════════════════════════════
   // (Pseudo-Namen – am Event durch die echten Teens ersetzen)
+  //   photo       = KLEINES Bild → Handy-Avatare (Datenvolumen für ~300 Geräte!)
+  //   photobeamer = GROSSES Bild → nur Beamer (1 Gerät). Leer = nimmt photo.
   teens: [
 
-    { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Jeditha.jpeg?alt=media&token=a8ec1b54-3d68-403d-8cfc-7589c9be0ad7" },
-    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Linda.jpeg?alt=media&token=ed162709-849c-4a3f-8400-afaca51539a6" },
-    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi.jpeg?alt=media&token=f8ff2b09-e727-43b3-a580-89f1a62c5488" },
-    { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", photo: "https://images.pexels.com/photos/3988848/pexels-photo-3988848.jpeg" },
-    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina.jpeg?alt=media&token=03730952-690b-4674-b714-b2db6f4894f1" }
+    { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Jeditha.jpeg?alt=media&token=a8ec1b54-3d68-403d-8cfc-7589c9be0ad7", photobeamer: "" },
+    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Linda.jpeg?alt=media&token=ed162709-849c-4a3f-8400-afaca51539a6", photobeamer: "" },
+    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi.jpeg?alt=media&token=f8ff2b09-e727-43b3-a580-89f1a62c5488", photobeamer: "" },
+    { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", photo: "https://images.pexels.com/photos/3988848/pexels-photo-3988848.jpeg", photobeamer: "" },
+    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina.jpeg?alt=media&token=03730952-690b-4674-b714-b2db6f4894f1", photobeamer: "" }
   ],
 
   // ═══════════════════════════════════════════════════════

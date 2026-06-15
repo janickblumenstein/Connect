@@ -75,10 +75,27 @@ function teamCardsBig(){
   }).join("") + `</div>`;
 }
 
-// kleiner runder Avatar (Foto/Emoji) für Beamer-Labels
+// kleiner runder Avatar für Beamer-Labels – nutzt das GROSSE Bild (photobeamer),
+// Fallback auf photo, sonst Emoji.
 function avatarChip(t){
-  if(t && t.photo) return `<span class="bav" style="background-image:url('${t.photo}')"></span>`;
+  const url = t && (t.photobeamer || t.photo);
+  if(url) return `<span class="bav" style="background-image:url('${url}')"></span>`;
   return `<span>${(t&&t.emoji)||"👤"}</span>`;
+}
+
+// Grosser Teen-Avatar für die Beamer-Chips (nutzt .tav-Sizing aus dem CSS).
+function bigTeenAvatar(t){
+  const url = t && (t.photobeamer || t.photo);
+  if(url) return `<span class="tav" style="background-image:url('${url}')"></span>`;
+  return `<span class="tav tav-ph">${(t&&t.emoji)||"👤"}</span>`;
+}
+
+// Verzögerung des Fragetexts (ms) – nur Bildfragen. Gleiche Logik wie auf dem Gerät.
+function beamerQuestionDelayMs(g){
+  if(!g || g.phase !== "answer") return 0;
+  if(!(g.photoUrl || g.photobeamer)) return 0;
+  const sec = (g.qdelay != null) ? g.qdelay : (window.TeensContent && window.TeensContent.questionDelaySec) || 0;
+  return sec > 0 ? sec * 1000 : 0;
 }
 
 // Vollbild-Rangliste (Host-Button "Rangliste am Beamer")
@@ -152,24 +169,34 @@ function renderActiveGame(view, g, q){
   const total = Object.keys(A.players).length;
   const cnt = g.answered || 0;   // kleiner Live-Zähler (Antworten liegen in /answers)
 
+  // Verzögerte Frage: Bildfragen zeigen das Foto sofort, den Text erst nach X Sek.
+  const dMs = beamerQuestionDelayMs(g);
+  const stillHidden = dMs > 0 && (Date.now() - g.startedAt) < dMs;
+
   let html = "";
   if(q){
     html += `<div class="qprog">${q.setLabel} · Frage ${q.current + 1} / ${q.total}</div>`;
   } else {
     html += `<div class="qprog">${typeLabel(g.type)}</div>`;
   }
-  html += `<div class="question">${g.q}</div>`;
+  if(stillHidden){
+    const left = Math.ceil((dMs - (Date.now() - g.startedAt)) / 1000);
+    html += `<div class="question" style="opacity:.85">🔍 Schau genau hin … <b>${left}s</b></div>`;
+  } else {
+    html += `<div class="question">${g.q}</div>`;
+  }
 
-  if(g.photoUrl){
-    // Progressive Freigabe: im Antwort-Modus startet das Bild unscharf.
-    const reveal = (window.TeensContent && window.TeensContent.photoReveal) !== false;
+  // Beamer nutzt das GROSSE Bild (photobeamer), Fallback auf photoUrl.
+  const bImg = g.photobeamer || g.photoUrl;
+  if(bImg){
+    const reveal = (window.TeensContent && window.TeensContent.photoReveal) === true;
     const maxB = (window.TeensContent && window.TeensContent.photoBlurMax) || 26;
     let blur = 0;
     if(g.phase === "answer" && reveal && g.endsAt && g.startedAt){
       const f = Math.max(0, Math.min(1, (g.endsAt - Date.now()) / (g.endsAt - g.startedAt)));
-      blur = Math.round(maxB * f * 1.4);   // auf der grossen Leinwand etwas stärker
+      blur = Math.round(maxB * f * 1.4);
     }
-    html += `<div class="photo-box" style="margin:20px auto;max-width:500px;aspect-ratio:1"><img src="${g.photoUrl}" style="filter:blur(${blur}px)" alt=""></div>`;
+    html += `<div class="photo-box" style="margin:20px auto;max-width:500px;aspect-ratio:1"><img src="${bImg}" style="filter:blur(${blur}px)" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;ph&quot;>📷</div>'"></div>`;
   }
 
   if(g.phase === "answer"){
@@ -184,7 +211,7 @@ function renderActiveGame(view, g, q){
     if(g.type === "guess" || g.type === "poll"){
       // Die wählbaren Teens als Hinweis gross zeigen (mit Foto)
       html += `<div class="teen-row-big">` + A.teensOnly().map(t=>
-        `<div class="tchip" style="--tcol:${t.color}">${A.avatarHtml(t)}<span>${t.name}</span></div>`
+        `<div class="tchip" style="--tcol:${t.color}">${bigTeenAvatar(t)}<span>${t.name}</span></div>`
       ).join("") + `</div>`;
     } else if(g.type === "trivia"){
       const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
