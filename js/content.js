@@ -72,11 +72,22 @@ window.TeensContent = {
   //   photobeamer = GROSSES Bild → nur Beamer (1 Gerät). Leer = nimmt photo.
   teens: [
 
-    { id: "t1", name: "Jeditha",  emoji: "👧", color: "#e8a4b8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Jeditha.jpeg?alt=media&token=a8ec1b54-3d68-403d-8cfc-7589c9be0ad7", photobeamer: "" },
-    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Linda.jpeg?alt=media&token=ed162709-849c-4a3f-8400-afaca51539a6", photobeamer: "" },
-    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi.jpeg?alt=media&token=f8ff2b09-e727-43b3-a580-89f1a62c5488", photobeamer: "" },
-    { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", photo: "https://images.pexels.com/photos/3988848/pexels-photo-3988848.jpeg", photobeamer: "" },
-    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina.jpeg?alt=media&token=03730952-690b-4674-b714-b2db6f4894f1", photobeamer: "" }
+    { id: "t1", name: "Jeditha",  emoji: "👧", 
+     color: "#e8a4b8", 
+     photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Jeditha.jpeg?alt=media&token=a8ec1b54-3d68-403d-8cfc-7589c9be0ad7", 
+     photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Jeditha%20(Phone).jpeg?alt=media&token=836b74a9-f0ee-42ce-9187-2cf3c922694e" },
+    { id: "t2", name: "Linda",  emoji: "👧", color: "#6ba3c7", 
+     photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Linda.jpeg?alt=media&token=ed162709-849c-4a3f-8400-afaca51539a6", 
+     photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Linda%20(Phone).jpeg?alt=media&token=fb53d0f1-99f4-4fc0-951f-46f43f0d3101" },
+    { id: "t3", name: "Joshua", emoji: "🧑", color: "#7ed987", 
+     photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi.jpeg?alt=media&token=f8ff2b09-e727-43b3-a580-89f1a62c5488", 
+     photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi%20(Phone).jpeg?alt=media&token=235a228c-2d54-4ff9-aaa2-833b843a2278" },
+    { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", 
+     photo: "https://images.pexels.com/photos/3988848/pexels-photo-3988848.jpeg", 
+     photobeamer: "" },
+    { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", 
+     photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina.jpeg?alt=media&token=03730952-690b-4674-b714-b2db6f4894f1", 
+     photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina%20(Phone).jpeg?alt=media&token=832ad5a3-891b-4ffc-9f09-c413cd690dbe" }
   ],
 
   // ═══════════════════════════════════════════════════════
@@ -100,8 +111,8 @@ window.TeensContent = {
 
   {
     q: "Wer steht hier mit dem Stab am Wasser?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Phone).jpg?alt=media&token=6a23468e-7c94-47d9-9f90-b9e0bec51c4b",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Large).jpg?alt=media&token=d04300f8-73bd-4b3a-be4b-e1fb94f9dc92",
     options: ["Noah", "Mose", "David", "Elia", "Josua"],
     answer: "Mose"
   },
@@ -114,85 +125,85 @@ window.TeensContent = {
   },
   {
     q: "Wer ist diese mutige junge Frau mit dem besonderen Kind?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Maria%20(Phone).JPG?alt=media&token=4e5cb211-c0f6-470d-97b0-8bdfc68b38a7",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Maria%20(Large).JPG?alt=media&token=d886f9eb-651e-4fe5-b333-fc9e5c314a59",
     options: ["Maria", "Martha", "Elisabeth", "Sara", "Rahel"],
     answer: "Maria"
   },
   {
     q: "Wer wurde hier durch ein helles Licht vom Verfolger zum Nachfolger?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Saulus%20(Phone).jpg?alt=media&token=d01b3117-e017-4eaf-a02b-19814071fe72",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Saulus%20(Large).jpg?alt=media&token=0c4d35dd-7aab-4d65-987b-4e30869a43a4",
     options: ["Petrus", "Johannes", "Judas", "Saulus", "Stephanus"],
     answer: "Saulus"
   },
   {
     q: "Welche mutige Königin tritt hier für ihr Volk ein?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Esther%20(Phone).jpeg?alt=media&token=3566f5f7-abc8-42b7-b6a5-c0f889318bb0",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Esther%20(Large).jpeg?alt=media&token=53384a1e-c641-42ca-ba92-4cd1071fbf6f",
     options: ["Ruth", "Hanna", "Esther", "Naomi", "Mirjam"],
     answer: "Esther"
   },
   {
     q: "Wer ist dieser junge Hirte, der später König wurde?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/David%20(Phone).JPG?alt=media&token=4cbf2248-581a-4d5a-8eb3-2ad6d06530f3",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/David%20(Large).JPG?alt=media&token=1696f735-a714-46b1-8a88-c5109c2e4600",
     options: ["Saul", "Salomo", "Goliath", "Samuel", "David"],
     answer: "David"
   },
   {
     q: "Wer betet hier so innig im Tempel um ein Kind?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Hanna%20(Phone).jpg?alt=media&token=8d4ec16d-6399-42cb-bcd5-6c8f0140d6e8",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Hanna%20(Large).jpg?alt=media&token=c18c747c-e176-4de8-94bf-131df998f4da",
     options: ["Hanna", "Peninna", "Debora", "Michal", "Lea"],
     answer: "Hanna"
   },
   {
     q: "Welche treue Schwiegertochter sammelt hier Ähren auf dem Feld?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Ruth%20(Phone).jpeg?alt=media&token=d7385f35-9439-4201-a541-18b948e42e00",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Ruth%20(Large).jpeg?alt=media&token=faaf3017-3ece-4b13-9e8a-32688ffd81c2",
     options: ["Esther", "Rahel", "Rebekka", "Ruth", "Naomi"],
     answer: "Ruth"
   },
   {
     q: "Welcher Jünger steigt hier mutig aus dem Boot?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Petrus%20(Phone).jpg?alt=media&token=7db8cd4f-5291-4c9c-a73a-ae967fb488fa",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Petrus%20(Large).jpg?alt=media&token=9a7edae1-fa29-4476-8695-a26289ef475b",
     options: ["Andreas", "Jakobus", "Petrus", "Johannes", "Thomas"],
     answer: "Petrus"
   },
   {
     q: "Wer lacht hier ungläubig über die Zusage, im hohen Alter noch ein Kind zu bekommen?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Sara%20(Phone).jpg?alt=media&token=34e8788b-7901-4959-8ed8-1dd785d1f329",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Sara%20(Large).jpg?alt=media&token=943cd369-53db-4474-971a-2b00a6a21f44",
     options: ["Hagar", "Sara", "Rebekka", "Lea", "Rahel"],
     answer: "Sara"
   },
   {
     q: "Welcher Zöllner wurde hier von Jesus in die Nachfolge gerufen?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Matth%C3%A4us%20(Phone).jpg?alt=media&token=dc56084a-2c74-4154-8c1f-5fd0be938ed9",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Matth%C3%A4us%20(Large).jpg?alt=media&token=b6afe947-b987-4bc7-bafa-e1212eee2167",
     options: ["Lukas", "Markus", "Matthäus", "Johannes", "Judas"],
     answer: "Matthäus"
   },
   {
     q: "Welcher weinende Prophet warnt hier sein Volk?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Jeremia%20(Large).jpg?alt=media&token=d72821bb-d175-415e-ac76-115cbb5f0d24",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Jeremia%20(Phone).jpg?alt=media&token=c7947c51-4be4-4d18-8f43-9bf3c984aca5",
     options: ["Jesaja", "Jeremia", "Hesekiel", "Daniel", "Elia"],
     answer: "Jeremia"
   },
   {
     q: "Wer baut hier die große Arche, um seine Familie und die Tiere zu retten?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Noah%20(Phone).JPEG?alt=media&token=a55cfbd4-bd8b-4bd9-af32-15d35fe4c6c9",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Noah%20(Large).JPEG?alt=media&token=20069b97-e5b3-4a2f-9769-43e1e6aa5e91",
     options: ["Abraham", "Mose", "Noah", "Jona", "Lot"],
     answer: "Noah"
   },
   {
     q: "Welcher Jünger zweifelt hier zuerst und möchte die Wunden Jesu berühren?",
-    photoUrl: "BILD_URL_HIER",
-    photobeamer: "BILD_URL_HIER",
+    photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Thomas%20(Phone).JPG?alt=media&token=1aa2f305-b6fb-4ebe-8fa2-3a6ee86b3fa8",
+    photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Thomas%20(Large).JPG?alt=media&token=a7d884e1-ac1f-4de3-baa0-2f2027a24c82",
     options: ["Petrus", "Thomas", "Judas", "Andreas", "Philippus"],
     answer: "Thomas"
   }
