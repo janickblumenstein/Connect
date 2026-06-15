@@ -202,11 +202,20 @@ button:disabled{opacity:.35;cursor:not-allowed}
 /* === BEAMER MODE === */
 body.beamer-mode{background:#0a0810;padding:0}
 body.beamer-mode .wrap{max-width:1400px}
-body.beamer-mode .beamer-view{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:60px 40px;text-align:center}
+body.beamer-mode .beamer-view{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px 36px;text-align:center}
 body.beamer-mode .beamer-view h1{font-size:4rem;color:var(--gold);margin:0 0 20px;font-weight:300;letter-spacing:2px}
 body.beamer-mode .beamer-view .question{font-size:3rem;color:var(--ink);margin:30px auto;max-width:85%;line-height:1.3}
 body.beamer-mode .beamer-view .photo-box{max-width:500px;aspect-ratio:1}
 body.beamer-mode .beamer-view .photo-box img{object-fit:cover}
+/* Zwei-Spalten-Layout bei Bildfragen: Bild links, Infos rechts → passt auf 1 Screen */
+body.beamer-mode .beamer-view .bg2{display:flex;gap:3vw;align-items:center;justify-content:center;width:100%}
+body.beamer-mode .beamer-view .bg2 .bg2-photo{flex:0 0 auto;height:min(82vh,48vw);aspect-ratio:1}
+body.beamer-mode .beamer-view .bg2 .bg2-photo .photo-box{width:100%;height:100%;max-width:none;margin:0;aspect-ratio:1;border-radius:18px;overflow:hidden}
+body.beamer-mode .beamer-view .bg2 .bg2-info{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:1.4vh;max-height:90vh;overflow:hidden;text-align:center}
+body.beamer-mode .beamer-view .bg2 .bg2-info>*{margin:0!important;max-width:100%}
+body.beamer-mode .beamer-view .bg2 .bg2-info .question{font-size:2.6rem}
+body.beamer-mode .beamer-view .bg2 .bg2-info .big-timer{font-size:5.5rem}
+body.beamer-mode .beamer-view .bg2 .bg2-info .big-counter{font-size:3.6rem}
 body.beamer-mode .beamer-view .sub-big{font-size:1.5rem;opacity:.7;margin:10px 0}
 body.beamer-mode .beamer-view .big-counter{font-size:5rem;font-weight:900;color:var(--gold)}
 body.beamer-mode .beamer-view .big-timer{font-size:7rem;font-weight:900;color:var(--gold);line-height:1}
