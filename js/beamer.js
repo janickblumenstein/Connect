@@ -98,24 +98,27 @@ function beamerQuestionDelayMs(g){
   return sec > 0 ? sec * 1000 : 0;
 }
 
-// Vollbild-Rangliste (Host-Button "Rangliste am Beamer")
+// Vollbild-Rangliste (Host-Button "Rangliste am Beamer") – Teams + Top-20 Einzel
 function renderScores(view){
-  const pts = A.teams || {};
   const topPlayers = Object.entries(A.players || {})
-    .sort((a,b)=>(b[1].score||0)-(a[1].score||0)).slice(0, 8);
+    .sort((a,b)=>(b[1].score||0)-(a[1].score||0)).slice(0, 20);
   let html = `<h1>🏆 Rangliste</h1>`;
   html += teamCardsBig();
   if(topPlayers.length){
-    html += `<div style="margin-top:40px;max-width:760px;margin-left:auto;margin-right:auto">
-      <div class="sub-big">🌟 Top-Stars (Einzel)</div>`;
-    topPlayers.forEach(([n,d],i)=>{
+    const row = ([n,d],i)=>{
       const medal = ['🥇','🥈','🥉'][i] || ((i+1)+'.');
       const displayName = d.name || n.split('_')[0];
-      html += `<div style="padding:12px 24px;margin:8px 0;background:rgba(255,255,255,.04);border-left:5px solid ${A.teamColor(d.team)};border-radius:8px;display:flex;justify-content:space-between;font-size:1.6rem">
-        <span>${medal} ${displayName} <span style="opacity:.5;font-size:1.1rem">· ${A.teamName(d.team)}</span></span><strong style="color:var(--gold)">${d.score||0} Pkt</strong>
+      return `<div style="padding:9px 18px;background:rgba(255,255,255,.04);border-left:5px solid ${A.teamColor(d.team)};border-radius:8px;display:flex;justify-content:space-between;gap:14px;font-size:1.3rem">
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${medal} ${displayName} <span style="opacity:.5;font-size:.95rem">· ${A.teamName(d.team)}</span></span><strong style="color:var(--gold)">${d.score||0}</strong>
       </div>`;
-    });
-    html += `</div>`;
+    };
+    const colA = topPlayers.slice(0,10).map(row).join("");
+    const colB = topPlayers.slice(10,20).map(row).join("");
+    html += `<div class="sub-big" style="margin-top:30px">🌟 Top-Stars (Einzel)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 30px;max-width:1100px;margin:10px auto 0">
+        <div style="display:flex;flex-direction:column;gap:8px">${colA}</div>
+        <div style="display:flex;flex-direction:column;gap:8px">${colB}</div>
+      </div>`;
   }
   view.innerHTML = html;
 }
@@ -198,31 +201,32 @@ function renderActiveGame(view, g, q){
     info += `<div class="question">${g.q}</div>`;
   }
 
-  if(g.phase === "answer"){
-    if(g.endsAt){
-      const left = Math.max(0, Math.ceil((g.endsAt - Date.now()) / 1000));
-      const cls = left <= 5 ? "crit" : left <= 10 ? "warn" : "";
-      info += `<div class="big-timer ${cls}">${left}s</div>`;
-      startBeamerTimer();
-    }
-    info += `<div class="big-counter">${cnt} / ${total}</div>`;
-    info += `<div class="sub-big">haben geantwortet</div>`;
-    if(g.type === "guess" || g.type === "poll"){
-      info += `<div class="teen-row-big">` + A.teensOnly().map(t=>
-        `<div class="tchip" style="--tcol:${t.color}">${bigTeenAvatar(t)}<span>${t.name}</span></div>`
-      ).join("") + `</div>`;
-    } else if(g.type === "trivia"){
-      const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
-      info += `<div class="teen-row-big">` + (g.options || []).map((o,i)=>
-        `<div class="tchip" style="--tcol:${cols[i % cols.length]}"><span>${String.fromCharCode(65+i)}. ${o}</span></div>`
-      ).join("") + `</div>`;
-    } else if(g.type === "estimate" && g.unit){
-      info += `<div class="sub-big" style="margin-top:20px;opacity:.5">Tipp in ${g.unit}</div>`;
-    }
-  }
-  else if(g.phase === "reveal"){
+  if(g.phase === "reveal"){
     stopBeamerTimer();
-    info += renderRevealBeamer(g);
+    renderRevealScreen(view, g);   // eigenes Layout: Rangliste | Lösung (kein Bild)
+    return;
+  }
+
+  if(g.endsAt){
+    const left = Math.max(0, Math.ceil((g.endsAt - Date.now()) / 1000));
+    const cls = left <= 5 ? "crit" : left <= 10 ? "warn" : "";
+    info += `<div class="big-timer ${cls}">${left}s</div>`;
+    startBeamerTimer();
+  }
+  info += `<div class="big-counter">${cnt} / ${total}</div>`;
+  info += `<div class="sub-big">haben geantwortet</div>`;
+  if(g.type === "guess" || g.type === "poll"){
+    info += `<div class="teen-row-big">` + A.teensOnly().map(t=>
+      `<div class="tchip" style="--tcol:${t.color}">${bigTeenAvatar(t)}<span>${t.name}</span></div>`
+    ).join("") + `</div>`;
+  } else if(g.type === "trivia"){
+    // Antwort-Optionen UNTEREINANDER (eine pro Zeile)
+    const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
+    info += `<div class="opt-col">` + (g.options || []).map((o,i)=>
+      `<div class="opt-line" style="--tcol:${cols[i % cols.length]}"><span class="opt-let">${String.fromCharCode(65+i)}</span>${o}</div>`
+    ).join("") + `</div>`;
+  } else if(g.type === "estimate" && g.unit){
+    info += `<div class="sub-big" style="margin-top:20px;opacity:.5">Tipp in ${g.unit}</div>`;
   }
 
   // Mit Bild → zwei Spalten (passt auf einen Screen); ohne Bild → wie bisher.
@@ -231,75 +235,123 @@ function renderActiveGame(view, g, q){
     : info;
 }
 
-function renderRevealBeamer(g){
+// ── AUFLÖSUNG: links Gesamt-Rangliste (mit Count-up + Rang-Verschiebung),
+//    rechts die Lösung dieser Frage. Kein Bild mehr. ──────────────────────
+const REVEAL_ANIM = true;   // Rang-Verschiebung an/aus (Count-up läuft immer)
+
+function renderRevealScreen(view, g){
   const r = g.result || {};
-  let html = "";
-
-  if(g.type === "guess" || g.type === "poll"){
-    const correct = A.teamById(g.answer) || {};
-    if(g.answer != null){
-      const pre = g.type === "poll" ? "🔮 Mehrheit:" : "✓";
-      html += `<div class="question" style="color:var(--green);font-size:3.5rem">${pre} ${correct.emoji||''} ${correct.name||g.answer}</div>`;
-    } else {
-      html += `<div class="question" style="color:var(--orange);font-size:3rem">Gleichstand – kein Mehrheitsvotum</div>`;
-    }
-    html += bigDistribution(r.breakdown || {}, g.answer);
-    html += teamResultsBig(r);
+  view.innerHTML = `<div class="bg2 rv">
+    <div class="bg2-info rv-left">${revealRankingHtml(r)}</div>
+    <div class="bg2-info rv-right">${revealSolutionHtml(g, r)}</div>
+  </div>`;
+  const left = view.querySelector(".rv-left");
+  animateCountUps(view);
+  if(REVEAL_ANIM && left){
+    setTimeout(()=>{ if(view.querySelector(".rv-left") === left) animateRankReorder(left); }, 1500);
   }
-  else if(g.type === "trivia"){
-    html += `<div class="question" style="color:var(--green);font-size:3.5rem">✓ ${g.answer}</div>`;
-    html += bigOptionDistribution(r.breakdown || {}, g.answer, g.options || []);
-    html += teamResultsBig(r);
-  }
-  else if(g.type === "estimate"){
-    html += `<div class="question" style="color:var(--green);font-size:3.5rem">✓ ${g.answer}${g.unit?' '+g.unit:''}</div>`;
-    if(r.ranking && r.ranking.length){
-      html += `<div style="max-width:700px;margin:0 auto;text-align:left;font-size:1.5rem">`;
-      r.ranking.slice(0, 5).forEach((e) => {
-        let medal = "🔹";
-        if (e.awardedPts === 3) medal = "🥇";
-        if (e.awardedPts === 2) medal = "🥈";
-        if (e.awardedPts === 1) medal = "🥉";
-        const ptsStr = e.awardedPts ? `+${e.awardedPts}` : '';
-        html += `<div style="padding:10px 20px;margin:8px 0;background:rgba(255,255,255,.04);border-left:4px solid ${A.teamColor(e.team)};border-radius:8px;display:flex;justify-content:space-between">
-          <span>${medal} ${e.p}: ${e.v}${g.unit?' '+g.unit:''}</span>
-          <strong style="color:var(--gold)">${ptsStr}</strong>
-        </div>`;
-      });
-      html += `</div>`;
-    }
-  }
-
-  if(r.roundBest && g.type !== "estimate"){
-    const t = A.teamById(r.roundBest) || {};
-    const avg = r.teamStats?.[r.roundBest]?.roundAvg;
-    html += `<div class="question" style="color:var(--gold);margin-top:24px">🏆 Beste Runde: ${t.emoji||''} ${t.name||r.roundBest} · Ø ${avg} Pkt</div>`;
-  }
-  return html;
 }
 
-// Team-Auflösung gross: pro Team Foto + Name + Treffer + Ø-Punkte.
-// Farblich ENTKOPPELT von den Antwort-Optionen → keine falsche Verbindung.
-function teamResultsBig(r){
-  if(!r.teamStats) return "";
-  const rows = A.allTeams().slice()
-    .filter(t => r.teamStats[t.id] && r.teamStats[t.id].answered > 0)
-    .sort((a,b)=>(r.teamStats[b.id].roundAvg||0)-(r.teamStats[a.id].roundAvg||0));
-  if(!rows.length) return "";
-  let h = `<div style="max-width:900px;margin:26px auto 0;display:flex;flex-direction:column;gap:10px">`;
-  h += rows.map(t=>{
-    const ts = r.teamStats[t.id];
-    const best = r.roundBest === t.id;
-    const bg = best ? "rgba(212,175,55,.18)" : "rgba(255,255,255,.04)";
-    const bd = best ? "var(--gold)" : t.color;
-    return `<div style="display:flex;align-items:center;gap:18px;padding:12px 22px;border-radius:14px;background:${bg};border-left:8px solid ${bd};font-size:1.7rem">
-      <span style="display:flex;align-items:center;gap:12px;flex:1;text-align:left">${avatarChip(t)} <b>${t.name}</b></span>
-      <span style="opacity:.8;font-size:1.4rem">${ts.correct}/${ts.answered} · ${(ts.rate*100).toFixed(0)}%</span>
-      <strong style="color:var(--gold);min-width:160px;text-align:right">Ø ${ts.roundAvg} Pkt</strong>
+// LINKS: aktuelle Gesamt-Rangliste aller Teens (kumulierte Punkte)
+function revealRankingHtml(r){
+  const pts = A.teams || {};
+  const ra = id => (r.teamStats && r.teamStats[id] && r.teamStats[id].roundAvg) || 0;
+  const newTot = id => pts[id] || 0;
+  const oldTot = id => newTot(id) - ra(id);
+  const teams = A.allTeams().slice();
+  const byNew = teams.slice().sort((a,b)=> newTot(b.id)-newTot(a.id) || a.name.localeCompare(b.name));
+  const byOld = teams.slice().sort((a,b)=> oldTot(b.id)-oldTot(a.id) || a.name.localeCompare(b.name));
+  const oldRank = {}; byOld.forEach((t,i)=> oldRank[t.id] = i+1);
+  const medals = ['🥇','🥈','🥉'];
+
+  let h = `<h2 class="rv-title">🏆 Gesamt-Rangliste</h2>`;
+  h += byNew.map((t,i)=>{
+    const add  = ra(t.id);
+    const move = oldRank[t.id] - (i+1);   // >0 = nach oben
+    const arrow = move>0 ? `<span class="mv up">▲${move}</span>`
+                : move<0 ? `<span class="mv dn">▼${-move}</span>` : "";
+    const medal = medals[i] || `${i+1}.`;
+    const addBadge = add>0 ? `<span class="rv-add">+${add}</span>` : `<span class="rv-add"></span>`;
+    return `<div class="rv-row ${i===0?'lead':''}" style="--tcol:${t.color};order:${oldRank[t.id]}">
+      <span class="rv-medal">${medal}</span>
+      ${bigTeenAvatar(t)}
+      <span class="rv-name">${t.name}${arrow}</span>
+      <span class="rv-pts countup" data-from="${oldTot(t.id)}" data-to="${newTot(t.id)}">${oldTot(t.id)}</span>
+      ${addBadge}
     </div>`;
   }).join("");
-  h += `</div>`;
   return h;
+}
+
+// RECHTS: Lösung der aktuellen Frage + Hinweis zur Punktevergabe
+function revealSolutionHtml(g, r){
+  let h = "";
+  if(g.type === "guess" || g.type === "poll"){
+    if(g.answer != null){
+      const c = A.teamById(g.answer);
+      const pre = g.type === "poll" ? "🔮 Mehrheit:" : "✓ Richtig:";
+      h += `<div class="rv-correct" style="color:var(--green)">${pre} ${bigTeenAvatar(c)} <span>${c ? c.name : g.answer}</span></div>`;
+    } else {
+      h += `<div class="rv-correct" style="color:var(--orange)">Gleichstand – kein Mehrheitsvotum</div>`;
+    }
+    h += bigDistribution(r.breakdown || {}, g.answer);
+  }
+  else if(g.type === "trivia"){
+    h += `<div class="rv-correct" style="color:var(--green)">✓ ${g.answer}</div>`;
+    h += bigOptionDistribution(r.breakdown || {}, g.answer, g.options || []);
+  }
+  else if(g.type === "estimate"){
+    h += `<div class="rv-correct" style="color:var(--green)">✓ ${g.answer}${g.unit?' '+g.unit:''}</div>`;
+    if(r.ranking && r.ranking.length){
+      h += `<div style="max-width:700px;margin:10px auto 0;text-align:left;font-size:1.4rem">`;
+      r.ranking.slice(0, 5).forEach((e)=>{
+        const medal = e.awardedPts===3?"🥇":e.awardedPts===2?"🥈":e.awardedPts===1?"🥉":"🔹";
+        h += `<div style="padding:8px 16px;margin:6px 0;background:rgba(255,255,255,.04);border-left:4px solid ${A.teamColor(e.team)};border-radius:8px;display:flex;justify-content:space-between">
+          <span>${medal} ${e.p}: ${e.v}${g.unit?' '+g.unit:''}</span><strong style="color:var(--gold)">${e.awardedPts?'+'+e.awardedPts:''}</strong></div>`;
+      });
+      h += `</div>`;
+    }
+  }
+  // Punktevergabe erklären (für die meisten nicht intuitiv)
+  h += `<div class="rv-hint">💡 <b>So zählt's:</b> Punkte holt, <b>wer richtig getippt hat</b> (je schneller, desto mehr). Ein Team bekommt den <b>Durchschnitt</b> seiner Tipps – nicht der meistgenannte Teen gewinnt, sondern wer richtig lag.</div>`;
+  return h;
+}
+
+// Zahlen von data-from nach data-to hochzählen
+function animateCountUps(view){
+  view.querySelectorAll(".countup").forEach(el=>{
+    const from = +el.dataset.from || 0, to = +el.dataset.to || 0;
+    if(from === to){ el.textContent = to; return; }
+    const dur = 1300, t0 = performance.now();
+    const step = (now)=>{
+      const p = Math.min(1, (now - t0) / dur);
+      el.textContent = Math.round(from + (to - from) * (p*(2-p)));  // easeOut
+      if(p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
+
+// Rang-Verschiebung (FLIP): von alter zu neuer Reihenfolge gleiten.
+// Degradiert gefahrlos – fällt nichts an, bleibt die finale Reihenfolge stehen.
+function animateRankReorder(container){
+  const rows = [...container.querySelectorAll(".rv-row")];
+  if(rows.length < 2) return;
+  const first = rows.map(r=> r.getBoundingClientRect().top);
+  rows.forEach(r=>{ r.style.order = ""; });            // → natürliche (neue) Ordnung
+  const last = rows.map(r=> r.getBoundingClientRect().top);
+  rows.forEach((r,i)=>{
+    const dy = first[i] - last[i];
+    r.style.transition = "none";
+    r.style.transform = dy ? `translateY(${dy}px)` : "";
+  });
+  void container.offsetHeight;                          // Reflow erzwingen
+  requestAnimationFrame(()=>{
+    rows.forEach(r=>{
+      r.style.transition = "transform .9s cubic-bezier(.2,.8,.2,1)";
+      r.style.transform = "";
+    });
+  });
 }
 
 // Gestapelter Balken über alle getippten Teens (Beamer-Grösse)

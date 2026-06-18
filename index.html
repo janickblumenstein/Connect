@@ -216,6 +216,28 @@ body.beamer-mode .beamer-view .bg2 .bg2-info>*{margin:0!important;max-width:100%
 body.beamer-mode .beamer-view .bg2 .bg2-info .question{font-size:2.6rem}
 body.beamer-mode .beamer-view .bg2 .bg2-info .big-timer{font-size:5.5rem}
 body.beamer-mode .beamer-view .bg2 .bg2-info .big-counter{font-size:3.6rem}
+/* Antwort-Optionen UNTEREINANDER (Trivia, Antwortphase) */
+body.beamer-mode .beamer-view .opt-col{display:flex;flex-direction:column;gap:1vh;width:100%;max-width:720px;margin:0 auto}
+body.beamer-mode .beamer-view .opt-col .opt-line{display:flex;align-items:center;gap:16px;padding:10px 20px;border-radius:14px;font-size:1.9rem;border:3px solid var(--tcol);background:color-mix(in srgb,var(--tcol) 14%,transparent);text-align:left}
+body.beamer-mode .beamer-view .opt-col .opt-let{flex:0 0 auto;width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--tcol);color:#1a1014;font-weight:900}
+/* === AUFLÖSUNG: Rangliste (links) | Lösung (rechts) === */
+body.beamer-mode .beamer-view .bg2.rv{align-items:stretch;gap:2.5vw}
+body.beamer-mode .beamer-view .bg2.rv .bg2-info{justify-content:flex-start;overflow:visible}
+body.beamer-mode .beamer-view .rv-left{flex:0 0 42%}
+body.beamer-mode .beamer-view .rv-title{font-size:2rem;color:var(--gold);letter-spacing:1px}
+body.beamer-mode .beamer-view .rv-row{display:flex;align-items:center;gap:16px;padding:9px 16px;border-radius:14px;background:rgba(255,255,255,.04);border-left:8px solid var(--tcol);font-size:1.8rem;will-change:transform}
+body.beamer-mode .beamer-view .rv-row.lead{background:rgba(212,175,55,.16)}
+body.beamer-mode .beamer-view .rv-row .rv-medal{font-size:1.7rem;width:2.4rem;text-align:center;flex:0 0 auto}
+body.beamer-mode .beamer-view .rv-row .tav{width:62px;height:62px;flex:0 0 auto}
+body.beamer-mode .beamer-view .rv-row .rv-name{flex:1;text-align:left;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.beamer-mode .beamer-view .rv-row .rv-pts{font-weight:900;color:var(--gold);min-width:5ch;text-align:right}
+body.beamer-mode .beamer-view .rv-row .rv-add{flex:0 0 auto;color:var(--green);font-weight:800;font-size:1.25rem;min-width:4.5ch;text-align:right}
+body.beamer-mode .beamer-view .rv-row .mv{font-size:1.05rem;margin-left:10px}
+body.beamer-mode .beamer-view .rv-row .mv.up{color:var(--green)}
+body.beamer-mode .beamer-view .rv-row .mv.dn{color:var(--red)}
+body.beamer-mode .beamer-view .rv-correct{font-size:2.6rem;font-weight:700;display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+body.beamer-mode .beamer-view .rv-correct .tav{width:88px;height:88px}
+body.beamer-mode .beamer-view .rv-hint{margin-top:1.5vh;font-size:1.25rem;opacity:.9;background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.35);border-radius:12px;padding:12px 18px;line-height:1.45;text-align:left}
 body.beamer-mode .beamer-view .sub-big{font-size:1.5rem;opacity:.7;margin:10px 0}
 body.beamer-mode .beamer-view .big-counter{font-size:5rem;font-weight:900;color:var(--gold)}
 body.beamer-mode .beamer-view .big-timer{font-size:7rem;font-weight:900;color:var(--gold);line-height:1}
