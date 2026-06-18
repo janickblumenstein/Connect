@@ -108,9 +108,9 @@ window.TeensContent = {
     // 👉 Text & Antworten gerne anpassen – das sind nur Beispiele.
     // ─────────────────────────────────────────────────────
     trivia: [
-
+/*
   {
-    q: "Wer steht hier mit dem Stab am Wasser?",
+    q: "Wer hält hier Steintafeln mit den 10 Geboten in der Hand?",
     photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Phone).jpg?alt=media&token=6a23468e-7c94-47d9-9f90-b9e0bec51c4b",
     photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Large).jpg?alt=media&token=d04300f8-73bd-4b3a-be4b-e1fb94f9dc92",
     options: ["Noah", "Mose", "David", "Elia", "Josua"],
@@ -206,7 +206,59 @@ window.TeensContent = {
     photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Thomas%20(Large).JPG?alt=media&token=a7d884e1-ac1f-4de3-baa0-2f2027a24c82",
     options: ["Petrus", "Thomas", "Judas", "Andreas", "Philippus"],
     answer: "Thomas"
-  }
+  }*/
+    
+ 
+    {
+      q: "Wer bekommt hier Besuch von einem Engel?",
+      photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Maria%20(Phone).JPG?alt=media&token=4e5cb211-c0f6-470d-97b0-8bdfc68b38a7",
+      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Maria%20(Large).JPG?alt=media&token=d886f9eb-651e-4fe5-b333-fc9e5c314a59",
+      options: ["Maria", "Martha", "Elisabeth", "Sara", "Rahel"],
+      answer: "Maria"
+    },
+    {
+      q: "Welche mutige Frau tritt hier ungefragt vor den König?",
+      photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Esther%20(Phone).jpeg?alt=media&token=3566f5f7-abc8-42b7-b6a5-c0f889318bb0",
+      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Esther%20(Large).jpeg?alt=media&token=53384a1e-c641-42ca-ba92-4cd1071fbf6f",
+      options: ["Ruth", "Hanna", "Esther", "Naomi", "Mirjam"],
+      answer: "Esther"
+    },
+    {
+      q: "Wer lacht hier im Zelt über die Zusage, im hohen Alter noch ein Kind zu bekommen?",
+      photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Sara%20(Phone).jpg?alt=media&token=34e8788b-7901-4959-8ed8-1dd785d1f329",
+      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Sara%20(Large).jpg?alt=media&token=943cd369-53db-4474-971a-2b00a6a21f44",
+      options: ["Hagar", "Sara", "Rebekka", "Lea", "Rahel"],
+      answer: "Sara"
+    },
+    {
+      q: "Wer wird hier von einem hellen Licht geblendet und fällt zu Boden?",
+      photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Saulus%20(Phone).jpg?alt=media&token=d01b3117-e017-4eaf-a02b-19814071fe72",
+      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Saulus%20(Large).jpg?alt=media&token=0c4d35dd-7aab-4d65-987b-4e30869a43a4",
+      options: ["Petrus", "Johannes", "Judas", "Saulus", "Stephanus"],
+      answer: "Saulus"
+    },
+    {
+      q: "Welcher Hirte wurde zum König von Israel??",
+      photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/David%20(Phone).JPG?alt=media&token=4cbf2248-581a-4d5a-8eb3-2ad6d06530f3",
+      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/David%20(Large).JPG?alt=media&token=1696f735-a714-46b1-8a88-c5109c2e4600",
+      options: ["Saul", "Salomo", "Goliath", "Samuel", "David"],
+      answer: "David"
+    },
+    {
+      q: "Wer betet hier so innig um ein Kind, dass der Priester Eli sie für betrunken hält?",
+      photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Hanna%20(Phone).jpg?alt=media&token=8d4ec16d-6399-42cb-bcd5-6c8f0140d6e8",
+      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Hanna%20(Large).jpg?alt=media&token=c18c747c-e176-4de8-94bf-131df998f4da",
+      options: ["Hanna", "Peninna", "Debora", "Michal", "Lea"],
+      answer: "Hanna"
+    },
+    {
+      q: "Welcher Jünger steigt hier mutig aus dem Boot aufs Wasser?",
+      photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Petrus%20(Phone).jpg?alt=media&token=7db8cd4f-5291-4c9c-a73a-ae967fb488fa",
+      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Petrus%20(Large).jpg?alt=media&token=9a7edae1-fa29-4476-8695-a26289ef475b",
+      options: ["Andreas", "Jakobus", "Petrus", "Johannes", "Thomas"],
+      answer: "Petrus"
+    }
+   
     ],
 
     // ─────────────────────────────────────────────────────
@@ -234,18 +286,26 @@ window.TeensContent = {
     // 👉 Lustig & pointiert, aber nie gemein. Gerne anpassen.
     // ─────────────────────────────────────────────────────
     poll: [
-    { q: "Wer von den fünf kocht in 5 Jahren am wenigsten selbst?" },
-    { q: "Wer verschläft am ehesten den Gottesdienst-Wecker?" },
-    { q: "Wer startet als Erstes einen viralen Trend?" },
-    { q: "Wer gibt am meisten Geld für Kaffee & Bubble Tea aus?" },
-    { q: "Wer wird in 10 Jahren am weitesten weg von zuhause wohnen?" },
-    { q: "Wer schläft im Durchschnitt am wenigsten?" },
-    { q: "Wem würde auf dem roten Teppich etwas Peinliches passieren?" },
-    { q: "Wer würde an eine Pingpong-Weltmeisterschaft gehen?" },
-    { q: "Wer würde auswandern?" },
-    { q: "Wer fährt ein Elektroauto?" },
-    { q: "Wer wird am meisten Kinder haben?" },
-    { q: "Wer wird der Nachfolger von Matthias?" }
+    //{ q: "Wer von den fünf kocht in 5 Jahren am wenigsten selbst?" },
+    //{ q: "Wer verschläft am ehesten den Gottesdienst-Wecker?" },
+    //{ q: "Wer startet als Erstes einen viralen Trend?" },
+    //{ q: "Wer gibt am meisten Geld für Kaffee & Bubble Tea aus?" },
+    //{ q: "Wer wird in 10 Jahren am weitesten weg von zuhause wohnen?" },
+    //{ q: "Wer schläft im Durchschnitt am wenigsten?" },
+    //{ q: "Wem würde auf dem roten Teppich etwas Peinliches passieren?" },
+    //{ q: "Wer würde an eine Pingpong-Weltmeisterschaft gehen?" },
+    //{ q: "Wer würde auswandern?" },
+    //{ q: "Wer fährt ein Elektroauto?" },
+    //{ q: "Wer wird am meisten Kinder haben?" },
+    //{ q: "Wer wird der Nachfolger von Matthias?" }
+
+  
+    { q: "Wer von den fünf verschläft am ehesten den Gottesdienst-Wecker?" },
+    { q: "Wer kocht in 5 Jahren am wenigsten selbst?" },
+    { q: "Wer startet als Erstes einen viralen Trend im Internet?" },
+    { q: "Wem würde auf dem roten Teppich am ehesten ein Missgeschick passieren?" },
+    { q: "Wer wird am ehesten der Nachfolger von Matthias (Connect-Pastor)?" }
+  
   ],
 
     // ─────────────────────────────────────────────────────
