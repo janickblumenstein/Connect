@@ -238,7 +238,7 @@ window.TeensContent = {
       answer: "Saulus"
     },
     {
-      q: "Welcher Hirte wurde zum König von Israel??",
+      q: "Welcher Hirte wurde zum König von Israel?",
       photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/David%20(Phone).JPG?alt=media&token=4cbf2248-581a-4d5a-8eb3-2ad6d06530f3",
       photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/David%20(Large).JPG?alt=media&token=1696f735-a714-46b1-8a88-c5109c2e4600",
       options: ["Saul", "Salomo", "Goliath", "Samuel", "David"],
@@ -314,6 +314,23 @@ window.TeensContent = {
     estimate: [
       { q: "Wie viele Jahre sind die 5 Teens zusammen in der Gruppe?", answer: 5,  unit: "Jahre" },
       { q: "Wie viele Lager haben sie zusammen erlebt?",               answer: 12, unit: "Lager" }
+    ],
+
+    // ─────────────────────────────────────────────────────
+    // TEST-FRAGEN  (nur fürs Aufwärmen/Testen, NICHT im echten Quiz!)
+    // Diese Kategorie wird nur vom Set "test" verwendet → taucht im echten
+    // Quiz nie auf. Jede Frage trägt ihren eigenen  type:  ("trivia"/"poll"),
+    // damit sie richtig dargestellt wird, obwohl sie hier zusammen liegen.
+    // Danach einfach im Host-Tab "Alle Scores auf 0".
+    // ─────────────────────────────────────────────────────
+    test: [
+      { type: "trivia",
+        q: "Wer hält hier Steintafeln mit den 10 Geboten in der Hand?",
+        photoUrl:    "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Phone).jpg?alt=media&token=6a23468e-7c94-47d9-9f90-b9e0bec51c4b",
+        photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Large).jpg?alt=media&token=d04300f8-73bd-4b3a-be4b-e1fb94f9dc92",
+        options: ["Noah", "Mose", "David", "Elia", "Josua"], answer: "Mose" },
+      { type: "poll",
+        q: "Wer von den fünf lacht am lautesten?" }
     ]
   },
 
@@ -324,7 +341,8 @@ window.TeensContent = {
   //   { trivia:"all", guess:"all", poll:"all" } = alles nacheinander
   // ═══════════════════════════════════════════════════════
   sets: [
-    { id: "gala",      label: "🎬 Quiz", pick: { trivia: "all", //guess: "all", 
+    { id: "test",      label: "🧪 Test-Runde", pick: { test: "all" }, timer: 20 },
+    { id: "gala",      label: "🎬 Quiz", pick: { trivia: "all", //guess: "all",
                                                poll: "all" }, timer: 20 },
     { id: "bibel",     label: "📖 Bibel-Figuren raten (9)",       pick: { trivia: "all" },   timer: 25 },
     { id: "teens",     label: "⭐ Über die Teens (5)",            pick: { guess: "all" },    timer: 25 },
