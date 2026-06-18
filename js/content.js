@@ -314,6 +314,23 @@ window.TeensContent = {
     estimate: [
       { q: "Wie viele Jahre sind die 5 Teens zusammen in der Gruppe?", answer: 5,  unit: "Jahre" },
       { q: "Wie viele Lager haben sie zusammen erlebt?",               answer: 12, unit: "Lager" }
+    ],
+
+    // ─────────────────────────────────────────────────────
+    // TEST-FRAGEN  (nur fürs Aufwärmen/Testen, NICHT im echten Quiz!)
+    // Diese Kategorie wird nur vom Set "test" verwendet → taucht im echten
+    // Quiz nie auf. Jede Frage trägt ihren eigenen  type:  ("trivia"/"poll"),
+    // damit sie richtig dargestellt wird, obwohl sie hier zusammen liegen.
+    // Danach einfach im Host-Tab "Alle Scores auf 0".
+    // ─────────────────────────────────────────────────────
+    test: [
+      { type: "trivia",
+        q: "TEST – Wer steht hier mit dem Stab am Wasser?",
+        photoUrl:    "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Phone).jpg?alt=media&token=6a23468e-7c94-47d9-9f90-b9e0bec51c4b",
+        photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Large).jpg?alt=media&token=d04300f8-73bd-4b3a-be4b-e1fb94f9dc92",
+        options: ["Noah", "Mose", "David", "Elia", "Josua"], answer: "Mose" },
+      { type: "poll",
+        q: "TEST – Wer von den fünf lacht am lautesten?" }
     ]
   },
 
@@ -324,7 +341,8 @@ window.TeensContent = {
   //   { trivia:"all", guess:"all", poll:"all" } = alles nacheinander
   // ═══════════════════════════════════════════════════════
   sets: [
-    { id: "gala",      label: "🎬 Quiz", pick: { trivia: "all", //guess: "all", 
+    { id: "test",      label: "🧪 Test-Runde (1 Bild + 1 Schwarm)", pick: { test: "all" }, timer: 20 },
+    { id: "gala",      label: "🎬 Quiz", pick: { trivia: "all", //guess: "all",
                                                poll: "all" }, timer: 20 },
     { id: "bibel",     label: "📖 Bibel-Figuren raten (9)",       pick: { trivia: "all" },   timer: 25 },
     { id: "teens",     label: "⭐ Über die Teens (5)",            pick: { guess: "all" },    timer: 25 },

@@ -250,15 +250,15 @@ function buildQuestionList(pick){
     if(type === "random"){
       const all = [];
       for(const [t, arr] of Object.entries(pool)){
-        (arr || []).forEach(q => all.push({ ...q, type: t }));
+        (arr || []).forEach(q => all.push({ type: t, ...q }));
       }
       out.push(...shuffle(all).slice(0, amount));
     } else {
       const arr = pool[type] || [];
       if(amount === "all"){
-        out.push(...arr.map(q => ({ ...q, type })));
+        out.push(...arr.map(q => ({ type, ...q })));
       } else {
-        out.push(...arr.slice(0, amount).map(q => ({ ...q, type })));
+        out.push(...arr.slice(0, amount).map(q => ({ type, ...q })));
       }
     }
   }
