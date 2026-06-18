@@ -83,7 +83,7 @@ window.TeensContent = {
      photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi.jpeg?alt=media&token=f8ff2b09-e727-43b3-a580-89f1a62c5488", 
      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi%20(Phone).jpeg?alt=media&token=235a228c-2d54-4ff9-aaa2-833b843a2278" },
     { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", 
-     photo: "https://images.pexels.com/photos/3988848/pexels-photo-3988848.jpeg", 
+     photo: "", 
      photobeamer: "" },
     { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", 
      photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina.jpeg?alt=media&token=03730952-690b-4674-b714-b2db6f4894f1", 
