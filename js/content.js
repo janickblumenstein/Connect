@@ -238,7 +238,7 @@ window.TeensContent = {
       answer: "Saulus"
     },
     {
-      q: "Welcher Hirte wurde zum König von Israel??",
+      q: "Welcher Hirte wurde zum König von Israel?",
       photoUrl: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/David%20(Phone).JPG?alt=media&token=4cbf2248-581a-4d5a-8eb3-2ad6d06530f3",
       photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/David%20(Large).JPG?alt=media&token=1696f735-a714-46b1-8a88-c5109c2e4600",
       options: ["Saul", "Salomo", "Goliath", "Samuel", "David"],
@@ -325,12 +325,12 @@ window.TeensContent = {
     // ─────────────────────────────────────────────────────
     test: [
       { type: "trivia",
-        q: "TEST – Wer steht hier mit dem Stab am Wasser?",
+        q: "Wer hält hier Steintafeln mit den 10 Geboten in der Hand?",
         photoUrl:    "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Phone).jpg?alt=media&token=6a23468e-7c94-47d9-9f90-b9e0bec51c4b",
         photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/Mose%20(Large).jpg?alt=media&token=d04300f8-73bd-4b3a-be4b-e1fb94f9dc92",
         options: ["Noah", "Mose", "David", "Elia", "Josua"], answer: "Mose" },
       { type: "poll",
-        q: "TEST – Wer von den fünf lacht am lautesten?" }
+        q: "Wer von den fünf lacht am lautesten?" }
     ]
   },
 
@@ -341,7 +341,7 @@ window.TeensContent = {
   //   { trivia:"all", guess:"all", poll:"all" } = alles nacheinander
   // ═══════════════════════════════════════════════════════
   sets: [
-    { id: "test",      label: "🧪 Test-Runde (1 Bild + 1 Schwarm)", pick: { test: "all" }, timer: 20 },
+    { id: "test",      label: "🧪 Test-Runde", pick: { test: "all" }, timer: 20 },
     { id: "gala",      label: "🎬 Quiz", pick: { trivia: "all", //guess: "all",
                                                poll: "all" }, timer: 20 },
     { id: "bibel",     label: "📖 Bibel-Figuren raten (9)",       pick: { trivia: "all" },   timer: 25 },
