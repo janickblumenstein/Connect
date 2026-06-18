@@ -105,15 +105,15 @@ function renderScores(view){
   let html = `<h1>🏆 Rangliste</h1>`;
   html += teamCardsBig();
   if(topPlayers.length){
-    const row = ([n,d],i)=>{
-      const medal = ['🥇','🥈','🥉'][i] || ((i+1)+'.');
+    const row = ([n,d], rank)=>{
+      const medal = ['🥇','🥈','🥉'][rank-1] || (rank+'.');
       const displayName = d.name || n.split('_')[0];
       return `<div style="padding:9px 18px;background:rgba(255,255,255,.04);border-left:5px solid ${A.teamColor(d.team)};border-radius:8px;display:flex;justify-content:space-between;gap:14px;font-size:1.3rem">
         <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${medal} ${displayName} <span style="opacity:.5;font-size:.95rem">· ${A.teamName(d.team)}</span></span><strong style="color:var(--gold)">${d.score||0}</strong>
       </div>`;
     };
-    const colA = topPlayers.slice(0,10).map(row).join("");
-    const colB = topPlayers.slice(10,20).map(row).join("");
+    const colA = topPlayers.slice(0,10).map((p,idx)=>row(p, idx+1)).join("");
+    const colB = topPlayers.slice(10,20).map((p,idx)=>row(p, idx+11)).join("");
     html += `<div class="sub-big" style="margin-top:30px">🌟 Top-Stars (Einzel)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 30px;max-width:1100px;margin:10px auto 0">
         <div style="display:flex;flex-direction:column;gap:8px">${colA}</div>
@@ -285,7 +285,8 @@ function revealRankingHtml(r){
 
 // RECHTS: Lösung der aktuellen Frage + Hinweis zur Punktevergabe
 function revealSolutionHtml(g, r){
-  let h = "";
+  // Frage weiterhin zeigen, damit klar ist, wofür die Punkte vergeben wurden.
+  let h = `<div class="rv-q">${g.q}</div>`;
   if(g.type === "guess" || g.type === "poll"){
     if(g.answer != null){
       const c = A.teamById(g.answer);
@@ -312,8 +313,12 @@ function revealSolutionHtml(g, r){
       h += `</div>`;
     }
   }
-  // Punktevergabe erklären (für die meisten nicht intuitiv)
-  h += `<div class="rv-hint">💡 <b>So zählt's:</b> Punkte holt, <b>wer richtig getippt hat</b> (je schneller, desto mehr). Ein Team bekommt den <b>Durchschnitt</b> seiner Tipps – nicht der meistgenannte Teen gewinnt, sondern wer richtig lag.</div>`;
+  // Punktevergabe erklären (für die meisten nicht intuitiv) – je nach Fragetyp.
+  if(g.type === "poll"){
+    h += `<div class="rv-hint">💡 <b>Schwarm-Frage:</b> Richtig ist, was die <b>Mehrheit</b> tippt. Punkte bekommt, <b>wer mit der Mehrheit lag</b> – nicht der genannte Teen selbst. Je schneller, desto mehr. Ein Team zählt den <b>Ø</b> seiner Tipps.</div>`;
+  } else {
+    h += `<div class="rv-hint">💡 <b>So gibt's Punkte:</b> Wer die <b>richtige Antwort</b> tippt, punktet – <b>je schneller, desto mehr</b>. Ein Team bekommt den <b>Durchschnitt</b> aus den Punkten seiner Mitglieder.</div>`;
+  }
   return h;
 }
 
@@ -356,40 +361,38 @@ function animateRankReorder(container){
 
 // Gestapelter Balken über alle getippten Teens (Beamer-Grösse)
 function bigDistribution(breakdown, correctId){
-  const teens = A.teensOnly();
-  const total = teens.reduce((s,t)=>s+(breakdown[t.id]||0),0) || 1;
-  const segs = teens.map(t=>{
-    const c = breakdown[t.id]||0;
-    const pct = c/total*100;
-    if(pct===0) return "";
-    const ring = t.id === correctId ? "box-shadow:inset 0 0 0 6px var(--gold)" : "";
-    return `<div style="width:${pct}%;background:${t.color};color:#111;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;${ring}">${c>0?c:''}</div>`;
-  }).join("");
-  const legend = teens.filter(t=>breakdown[t.id]).map(t=>
-    `<span style="white-space:nowrap;margin:0 10px"><span class="dot" style="background:${t.color}"></span>${t.name} (${breakdown[t.id]||0})</span>`
-  ).join("");
-  return `<div style="display:flex;height:80px;max-width:1000px;margin:30px auto;border-radius:14px;overflow:hidden">${segs}</div>
-    <div style="font-size:1.3rem;opacity:.85;display:flex;flex-wrap:wrap;justify-content:center;gap:6px">${legend}</div>`;
+  const items = A.teensOnly().map(t => ({ key: t.id, label: t.name, color: t.color, c: breakdown[t.id]||0 }));
+  return distributionBar(items, correctId);
 }
 
 // Gestapelter Balken über Text-Optionen (Bibel-Trivia, Beamer-Grösse)
 function bigOptionDistribution(breakdown, correctVal, options){
   const cols = (window.TeensContent || {}).optionColors || ["#d4af37"];
-  const total = options.reduce((s,o)=>s+(breakdown[o]||0),0) || 1;
-  const segs = options.map((o,i)=>{
-    const c = breakdown[o]||0;
-    const pct = c/total*100;
-    if(pct===0) return "";
-    const col = cols[i % cols.length];
-    const ring = o === correctVal ? "box-shadow:inset 0 0 0 6px var(--gold)" : "";
-    return `<div style="width:${pct}%;background:${col};color:#111;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;${ring}">${c>0?c:''}</div>`;
+  const items = options.map((o,i) => ({ key: o, label: o, color: cols[i % cols.length], c: breakdown[o]||0 }));
+  return distributionBar(items, correctVal);
+}
+
+// Gemeinsame Verteilungs-Darstellung. Die KORREKTE Antwort wird mit einem
+// klaren WEISSEN Ring + ✓ markiert (NICHT mit einer Antwort-Farbe) → keine
+// Verwechslung mit benachbarten Segmenten. Robust auch bei starker Schieflage
+// (z.B. 95% gleiche Antwort): schmale Segmente zeigen keine Zahl, die Legende
+// listet alle Werte; die korrekte Antwort steht immer in der Legende.
+function distributionBar(items, correctKey){
+  const total = items.reduce((s,it)=>s+it.c,0) || 1;
+  const segs = items.map(it=>{
+    const pct = it.c/total*100;
+    if(pct === 0) return "";
+    const correct = it.key === correctKey;
+    const ring = correct ? "box-shadow:inset 0 0 0 5px #fff;z-index:2" : "";
+    const num = pct >= 8 ? (correct ? "✓ " + it.c : it.c) : "";
+    return `<div title="${it.label}" style="position:relative;width:${pct}%;background:${it.color};color:#111;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;${ring}">${num}</div>`;
   }).join("");
-  const legend = options.filter(o=>breakdown[o]).map((o)=>{
-    const i = options.indexOf(o); const col = cols[i % cols.length];
-    return `<span style="white-space:nowrap;margin:0 10px"><span class="dot" style="background:${col}"></span>${o} (${breakdown[o]||0})</span>`;
+  const legend = items.filter(it=> it.c>0 || it.key===correctKey).map(it=>{
+    const correct = it.key === correctKey;
+    return `<span style="white-space:nowrap;margin:0 10px;${correct?'font-weight:800;color:#fff':''}"><span class="dot" style="background:${it.color}"></span>${correct?'✓ ':''}${it.label} (${it.c})</span>`;
   }).join("");
-  return `<div style="display:flex;height:80px;max-width:1000px;margin:30px auto;border-radius:14px;overflow:hidden">${segs}</div>
-    <div style="font-size:1.3rem;opacity:.85;display:flex;flex-wrap:wrap;justify-content:center;gap:6px">${legend}</div>`;
+  return `<div style="display:flex;height:80px;max-width:1000px;margin:0 auto;border-radius:14px;overflow:hidden;background:var(--card2)">${segs}</div>
+    <div style="font-size:1.3rem;opacity:.9;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px">${legend}</div>`;
 }
 
 function renderTapDuel(view, d){
