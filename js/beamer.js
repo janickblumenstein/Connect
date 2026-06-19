@@ -127,17 +127,28 @@ function renderIdle(view){
   const c = window.TeensContent || {};
   const guestCount = Object.keys(A.players||{}).length;
   const meta = [c.eventLocation, c.eventDate].filter(Boolean).join("  ·  ");
-  // Im Wartezustand: GROSSER QR-Code mittig – aus 30m gut scannbar.
+  const steps = [
+    ["📷", "QR-Code scannen"],
+    ["✍️", "Name eingeben <span style='opacity:.6'>(freiwillig)</span>"],
+    ["⭐", "Teen wählen<br>oder „Noch offen“"],
+    ["🎬", "„Roten Teppich<br>betreten“"]
+  ].map((s,i)=>`<div class="istep"><div class="istep-no">${i+1}</div><div class="istep-ic">${s[0]}</div><div class="istep-tx">${s[1]}</div></div>`).join("");
+  // Im Wartezustand: GROSSER QR-Code mittig (aus 30m scannbar) + Login-Schritte.
   view.innerHTML = `
-    <h1>✦ ${c.eventTitle || "Teens-Abschluss"} ✦</h1>
+    <h1 style="margin-bottom:6px">✦ ${c.eventTitle || "Teens-Abschluss"} ✦</h1>
     <div class="sub-big">${c.subtitle || ""}</div>
-    ${meta ? `<div class="sub-big" style="color:var(--gold);margin-top:6px">${meta}</div>` : ""}
-    <div style="background:#fff;padding:24px;border-radius:24px;display:inline-block;margin:34px auto 14px;box-shadow:0 6px 30px rgba(0,0,0,.6)">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&qzone=1&data=${encodeURIComponent(GAME_URL)}"
-           style="width:min(46vh,440px);height:min(46vh,440px);display:block" alt="QR">
+    ${meta ? `<div class="sub-big" style="color:var(--gold);margin-top:4px">${meta}</div>` : ""}
+    <div class="idle-wrap">
+      <div>
+        <div style="background:#fff;padding:20px;border-radius:22px;display:inline-block;box-shadow:0 6px 30px rgba(0,0,0,.6)">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&qzone=1&data=${encodeURIComponent(GAME_URL)}"
+               style="width:min(42vh,400px);height:min(42vh,400px);display:block" alt="QR">
+        </div>
+        <div style="font-size:1.6rem;font-weight:bold;color:var(--gold);margin-top:10px">📲 Handy-Kamera auf den Code halten</div>
+      </div>
+      <div class="idle-steps">${steps}</div>
     </div>
-    <div style="font-size:2rem;font-weight:bold;color:var(--gold)">📲 QR scannen & mitmachen</div>
-    <div class="sub-big" style="margin-top:18px;opacity:.6">${guestCount} Gäste bereits verbunden</div>`;
+    <div class="sub-big" style="margin-top:16px;opacity:.6">${guestCount} Gäste bereits verbunden</div>`;
 }
 
 function renderQuizDone(view){

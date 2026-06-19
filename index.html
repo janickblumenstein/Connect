@@ -242,6 +242,13 @@ body.beamer-mode .beamer-view .rv-hint{margin-top:1.5vh;font-size:1.55rem;opacit
 body.beamer-mode .beamer-view .sub-big{font-size:1.5rem;opacity:.7;margin:10px 0}
 body.beamer-mode .beamer-view .big-counter{font-size:5rem;font-weight:900;color:var(--gold)}
 body.beamer-mode .beamer-view .big-timer{font-size:7rem;font-weight:900;color:var(--gold);line-height:1}
+/* Wartescreen: QR + Login-Schritte */
+body.beamer-mode .beamer-view .idle-wrap{display:flex;flex-wrap:wrap;gap:4vw;align-items:center;justify-content:center;margin:24px auto}
+body.beamer-mode .beamer-view .idle-steps{display:flex;flex-direction:column;gap:14px;text-align:left}
+body.beamer-mode .beamer-view .idle-steps .istep{display:flex;align-items:center;gap:18px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:14px 22px;min-width:380px}
+body.beamer-mode .beamer-view .idle-steps .istep-no{flex:0 0 auto;width:48px;height:48px;border-radius:50%;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#2a1a00;font-weight:900;font-size:1.5rem;display:flex;align-items:center;justify-content:center}
+body.beamer-mode .beamer-view .idle-steps .istep-ic{font-size:2rem;flex:0 0 auto}
+body.beamer-mode .beamer-view .idle-steps .istep-tx{font-size:1.5rem;line-height:1.2}
 body.beamer-mode .beamer-view .big-timer.warn{color:var(--orange)}
 body.beamer-mode .beamer-view .big-timer.crit{color:var(--red);animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
