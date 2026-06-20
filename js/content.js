@@ -11,7 +11,7 @@ window.TeensContent = {
   eventTitle: "TEENS CONNECT",
   subtitle:   "LIFESTYLE · Teensabschluss",
   eventLocation: "Funkenpark",
-  eventDate:     "21. Juni 2026 · 10:00 Uhr",
+  eventDate:     "21. Juni 2026",
 
   // ─── HOST-SCHUTZ ───────────────────────────────────────
   // PIN, damit nicht jeder per 3×-Logo-Tipp Host werden kann.
