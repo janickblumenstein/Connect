@@ -145,6 +145,7 @@ function renderIdle(view){
                style="width:min(42vh,400px);height:min(42vh,400px);display:block" alt="QR">
         </div>
         <div style="font-size:1.6rem;font-weight:bold;color:var(--gold);margin-top:10px">📲 Handy-Kamera auf den Code halten</div>
+        <div style="font-size:1.05rem;opacity:.7;margin-top:6px">oder im Browser eingeben:<br><span style="font-family:monospace;color:var(--gold);font-size:1.2rem;word-break:break-all">${GAME_URL.replace(/^https?:\/\//,'').replace(/\/$/,'')}</span></div>
       </div>
       <div class="idle-steps">${steps}</div>
     </div>
