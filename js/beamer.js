@@ -3,7 +3,8 @@ const A = window.App;
 if(!A.isBeamer){ console.log("beamer.js: nicht im Beamer-Modus, skip"); }
 
 // URL, auf die der QR-Code zeigt (am besten eure öffentliche App-URL eintragen)
-const GAME_URL = location.origin + location.pathname;
+//const GAME_URL = location.origin + location.pathname;
+const GAME_URL = "https://connect-zofingen.vercel.app/";
 let beamerTimerInterval = null;
 
 if(A.isBeamer){
