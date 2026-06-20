@@ -83,8 +83,8 @@ window.TeensContent = {
      photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi.jpeg?alt=media&token=f8ff2b09-e727-43b3-a580-89f1a62c5488", 
      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Joshi%20(Phone).jpeg?alt=media&token=235a228c-2d54-4ff9-aaa2-833b843a2278" },
     { id: "t4", name: "Ruby",   emoji: "👧", color: "#e8a555", 
-     photo: "", 
-     photobeamer: "" },
+     photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Ruby%20(Phone).jpeg?alt=media&token=cf9feb0f-f4d9-46e3-b295-971df949a307", 
+     photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Ruby%20(Large).jpeg?alt=media&token=205077f3-a38b-48e3-ba32-715262c957b0" },
     { id: "t5", name: "Gina", emoji: "👧", color: "#b98ce8", 
      photo: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina.jpeg?alt=media&token=03730952-690b-4674-b714-b2db6f4894f1", 
      photobeamer: "https://firebasestorage.googleapis.com/v0/b/hochzeitesthermanuel.firebasestorage.app/o/TeensAbschluss_Welcome_Gina%20(Phone).jpeg?alt=media&token=832ad5a3-891b-4ffc-9f09-c413cd690dbe" }
