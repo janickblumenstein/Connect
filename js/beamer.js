@@ -23,7 +23,8 @@ function injectQrOverlay(){
     </div>
     <div style="font-size:1rem;font-weight:bold;color:var(--gold);margin-top:6px;text-align:center">
       📲 Scan & mach mit
-    </div>`;
+    </div>
+    <div style="font-family:monospace;font-size:.85rem;color:var(--gold);opacity:.85;text-align:center;max-width:220px;word-break:break-all">${GAME_URL.replace(/^https?:\/\//,'').replace(/\/$/,'')}</div>`;
   Object.assign(overlay.style, {
     position: "fixed", top: "24px", right: "28px", zIndex: "999",
     textAlign: "center", pointerEvents: "none"
